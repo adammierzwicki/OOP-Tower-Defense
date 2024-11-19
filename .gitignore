@@ -1,2 +1,8 @@
-.exe
 .*
+.idea/
+.vscode/
+venv/
+.venv/
+*.exe
+*.out
+*.so

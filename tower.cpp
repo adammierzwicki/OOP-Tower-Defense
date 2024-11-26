@@ -1,6 +1,8 @@
 #include <iostream>
 #include <memory>
+#include <vector>
 #include "gun.cpp"
+#include "enemy.cpp"
 
 
 class Tower {
@@ -19,7 +21,7 @@ class Tower {
 
         virtual ~Tower() {}
 
-        void place_tower(int x, int y) {
+        void placeTower(int x, int y) {
             if (is_placed) {
                 std::cout << "Tower is already placed at (" << position.first << ", " << position.second << ")." << std::endl;
                 return;
@@ -29,7 +31,7 @@ class Tower {
             std::cout << "Tower placed at (" << x << ", " << y << ")." << std::endl;
         }
 
-        void remove_tower() {
+        void removeTower() {
             if (!is_placed) {
                 std::cout << "Tower is not placed." << std::endl;
                 return;
@@ -39,16 +41,44 @@ class Tower {
             position = std::make_pair(-1, -1);
         }
 
-        std::pair<int, int> get_position() {
+        std::pair<int, int> getPosition() {
             return position;
         }
 
-        virtual void shoot() {
+        //have to check if this is working
+        Enemy* getClosestEnemy(const std::vector<Enemy*>& enemies) {
+            Enemy* closest_enemy = nullptr;
+            float min_distance = range + 1;
+            for (auto enemy : enemies) {
+                if (enemy->isDead()) {
+                    continue;
+                }
+                std::pair<int, int> enemy_position = enemy->getPosition();
+                float distance = sqrt(pow(position.first - enemy_position.first, 2) + pow(position.second - enemy_position.second, 2));
+                if (distance < min_distance) {
+                    min_distance = distance;
+                    closest_enemy = enemy;
+                }
+            }
+            return closest_enemy;
+        }
+        
+        //TODO: change according to description below
+        virtual void shoot(Enemy* enemy = nullptr) {
             if (!is_placed) {
                 std::cout << "Tower is not placed and cannot shoot." << std::endl;
                 return;
             }
             gun_type->fire();
+            // here would be nice to add some choosing of closest enemy instead of passing it as an argument
+            // we can implement some kind of wave class which will hold a vector of all enemies
+            if (enemy == nullptr) {
+                std::cout << "No enemy in range." << std::endl;
+                return;
+            }
+            std::cout << "Shooting to " << enemy->getType() << "located at " << enemy->getPosition().first << " " << enemy->getPosition().second << std::endl;
+            enemy->takeDamage(gun_type->getDamage());
+
         }
 
         virtual Tower* upgrade(); // here I only declare this funciton, because the compiler will not see Tower 2 yet
@@ -57,9 +87,7 @@ class Tower {
 class Tower2 : public Tower {
     public:
         Tower2(std::pair<int, int> position = std::make_pair(-1, -1), int level = 2, int range = 15)
-            : Tower(position, level, range, std::make_unique<HighDamageGun>()) {
-            std::cout << "Tower2 initialized with High Damage Gun." << std::endl;
-        }
+            : Tower(position, level, range, std::make_unique<HighDamageGun>()) {}
 
         Tower* upgrade() override;
 };
@@ -67,9 +95,7 @@ class Tower2 : public Tower {
 class Tower3 : public Tower {
     public:
         Tower3(std::pair<int, int> position = std::make_pair(-1, -1), int level = 3, int range = 25)
-            : Tower(position, level, range, std::make_unique<SniperRifle>()) {
-            std::cout << "Tower3 initialized with Sniper Rifle." << std::endl;
-        }
+            : Tower(position, level, range, std::make_unique<SniperRifle>()) {}
 
         Tower* upgrade() override {
             std::cout << "Tower3 is the highest level and cannot be upgraded further." << std::endl;
@@ -85,23 +111,4 @@ Tower* Tower::upgrade() {
 Tower* Tower2::upgrade() {
     std::cout << "Upgrading Tower2 to Tower3" << std::endl;
     return new Tower3(position, level + 1, range + 10);
-}
-
-int main() {
-    Tower* tower = new Tower();
-    tower->place_tower(1, 2);
-    tower->shoot();
-
-    Tower* upgradedTower = tower->upgrade();
-    delete tower;
-    upgradedTower->shoot();
-
-    Tower* finalTower = upgradedTower->upgrade();
-    delete upgradedTower;
-    finalTower->shoot();
-
-    Tower* maxTower = finalTower->upgrade();
-    delete maxTower;
-
-    return 0;
 }

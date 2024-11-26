@@ -19,6 +19,8 @@ class Gun {
         }
 
         std::string getType() { return gun_name; }
+
+        int getDamage() { return damage; }
 };
 
 class MachineGun : public Gun {

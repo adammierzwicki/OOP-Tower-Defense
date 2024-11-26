@@ -28,6 +28,10 @@ class Enemy {
             return speed;
         }
 
+        std::string getType() {
+            return enemy_type;
+        }
+
         std::pair<int, int> getPosition() {
             return position;
         }

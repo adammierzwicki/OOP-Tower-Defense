@@ -6,3 +6,4 @@ venv/
 *.exe
 *.out
 *.so
+*.o

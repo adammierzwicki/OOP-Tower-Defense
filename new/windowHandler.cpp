@@ -1,4 +1,4 @@
-#include "WindowHandler.h"
+#include "windowHandler.h"
 
 void WindowHandler::initVariables()
 {

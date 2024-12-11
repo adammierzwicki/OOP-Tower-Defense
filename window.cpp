@@ -3,7 +3,7 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(512, 512), "SFML window", sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "Tower Defense Game", sf::Style::Close);
 
     sf::RectangleShape player(sf::Vector2f(50.0f, 50.0f));
     player.setFillColor(sf::Color::Red);

@@ -3,7 +3,7 @@
 #include <cmath>
 #include <SFML/Graphics.hpp>
 
-class Enemy
+class Enemy : public sf::Drawable
 {
 private:
     int hp;
@@ -11,17 +11,22 @@ private:
     sf::Vector2f position;
     std::string enemy_type;
 
+    // functions
+    virtual void draw(sf::RenderTarget &target, sf::RenderStates states = sf::RenderStates::Default) const;
+
+protected:
+    sf::RectangleShape shape;
+    sf::Texture texture;
+
 public:
     Enemy(std::string enemy_type, int hp, float speed);
-    Enemy(std::string enemy_type, int hp, float speed, sf::Vector2f);
+    Enemy(std::string enemy_type, int hp, float speed, sf::Vector2f position);
     ~Enemy();
 
     int getHp();
     int getSpeed();
     std::string getType();
     sf::Vector2f getPosition();
-    sf::RectangleShape shape;
-    sf::Texture texture;
 
     void setStartPosition(sf::Vector2f position);
 
@@ -29,7 +34,6 @@ public:
     bool isDead();
 
     void update();
-    void render(sf::RenderTarget *target);
     // void move();
     // todo: someType animate();
 };

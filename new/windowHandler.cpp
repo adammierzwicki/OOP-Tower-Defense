@@ -2,7 +2,6 @@
 
 void WindowHandler::initVariables()
 {
-
 }
 
 void WindowHandler::initWindow()
@@ -36,15 +35,15 @@ void WindowHandler::pollEvents()
     {
         switch (this->windowEvent.type)
         {
-            case sf::Event::Closed:
+        case sf::Event::Closed:
+            this->window->close();
+            break;
+        case sf::Event::KeyPressed:
+            if (this->windowEvent.key.code == sf::Keyboard::Q && this->windowEvent.key.control)
+            {
                 this->window->close();
-                break;
-            case sf::Event::KeyPressed:
-                if (this->windowEvent.key.code == sf::Keyboard::Q && this->windowEvent.key.control)
-                {
-                    this->window->close();
-                }
-                break;
+            }
+            break;
         }
     }
 }
@@ -54,15 +53,23 @@ void WindowHandler::update()
     this->pollEvents();
 }
 
-void WindowHandler::render(sf::Sprite background, std::vector<Enemy *> enemies)
+sf::RenderWindow *WindowHandler::getWindow()
 {
+    return this->window;
+}
+
+void WindowHandler::render(sf::Sprite background, std::vector<sf::Drawable *> screenContent)
+{
+
     this->window->clear();
-    
+
     this->window->draw(background);
+
     // render all objects
-    for (size_t i = 0; i < enemies.size(); i++)
+    for (size_t i = 0; i < screenContent.size(); i++)
     {
-        enemies[i]->render(this->window);
+        // screenContent[i]->draw(*this->window, sf::RenderStates::Default);
+        this->window->draw(*screenContent[i]);
     }
 
     this->window->display();

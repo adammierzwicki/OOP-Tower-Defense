@@ -89,17 +89,16 @@ void Enemy::update()
     {
         this->shape.move(0.f, this->speed);
     }
-
 }
 
-void Enemy::render(sf::RenderTarget* target)
+void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-    target->draw(this->shape);
+    target.draw(this->shape, states);
 }
 
 //=========================================================================
 // Specialized enemies
-//Peasant
+// Peasant
 void Peasant::initShape()
 {
     this->shape.setFillColor(sf::Color::Red);
@@ -108,7 +107,6 @@ void Peasant::initShape()
 
 void Peasant::initVariables()
 {
-    
 }
 
 Peasant::Peasant() : Enemy("Peasant", 100, 2.f)
@@ -121,7 +119,6 @@ Peasant::~Peasant()
 {
     std::cout << "Peasant destroyed" << std::endl;
 }
-
 
 Warrior::Warrior() : Enemy("Warrior", 200, 5.f)
 {

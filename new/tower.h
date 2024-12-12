@@ -4,45 +4,60 @@
 #include <cmath>
 #include <SFML/Graphics.hpp>
 #include "gun.h"
+
+#ifndef ENEMY_H
+#define ENEMY_H
 #include "enemy.h"
+#endif
 
-class Tower {
-    protected:
-        sf::Vector2f position;
-        bool is_placed;
-        int level;
-        int range;
-        std::unique_ptr<Gun> gun_type;
+class Tower : public sf::Drawable
+{
+private:
+    virtual void draw(sf::RenderTarget &target, sf::RenderStates states = sf::RenderStates::Default) const;
 
-    public:
-        Tower::Tower(sf::Vector2f position, int level, int range, std::unique_ptr<Gun> gun);
+protected:
+    sf::Vector2f position;
+    bool is_placed;
+    int level;
+    int range;
+    // todo: why?
+    //  std::unique_ptr<Gun> gun_type;
+    Gun *gun_type;
+    sf::Texture texture;
+    sf::Sprite sprite;
 
-        virtual ~Tower();
+public:
+    Tower();
+    // Tower(sf::Vector2f position, int level, int range, std::unique_ptr<Gun> gun);
+    Tower(sf::Vector2f position, int level, int range, Gun *gun);
 
-        void placeTower(int x, int y);
+    virtual ~Tower();
 
-        void removeTower();
+    void initVariables();
 
-        sf::Vector2f getPosition();
+    void placeTower(int x, int y);
 
-        Enemy* getClosestEnemy(const std::vector<Enemy*>& enemies);
+    void removeTower();
 
-        virtual void shoot(Enemy* enemy = nullptr);
+    sf::Vector2f getPosition();
 
-        virtual Tower* upgrade();
+    Enemy *getClosestEnemy(const std::vector<Enemy *> &enemies);
+
+    virtual void shoot(Enemy *enemy = nullptr);
+
+    virtual Tower *upgrade();
 };
 
-class Tower2 : public Tower {
-    public:
-        Tower2::Tower2(sf::Vector2f position, int level, int range);
-        Tower* upgrade() override;
+class Tower2 : public Tower
+{
+public:
+    Tower2(sf::Vector2f position, int level, int range);
+    Tower *upgrade() override;
 };
 
-class Tower3 : public Tower {
-    public:
-        Tower3::Tower3(sf::Vector2f position, int level, int range);
-        Tower* upgrade() override;
+class Tower3 : public Tower
+{
+public:
+    Tower3(sf::Vector2f position, int level, int range);
+    Tower *upgrade() override;
 };
-
-
-

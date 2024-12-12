@@ -36,7 +36,7 @@ Menu::Menu(sf::RenderWindow* window) : window(window), selectedItemIndex(0) {
         text.setOrigin(textBounds.left, textBounds.top + textHeight / 2);
 
         if (i == 0) {
-            text.setFillColor(sf::Color::Blue);
+            text.setFillColor(sf::Color::Green);
         } else {
             text.setFillColor(sf::Color::White);
         }
@@ -60,7 +60,7 @@ void Menu::navigateUp() {
     if (selectedItemIndex > 0) {
         menuItems[selectedItemIndex].setFillColor(sf::Color::White);
         --selectedItemIndex;
-        menuItems[selectedItemIndex].setFillColor(sf::Color::Blue);
+        menuItems[selectedItemIndex].setFillColor(sf::Color::Green);
     }
 }
 
@@ -68,7 +68,7 @@ void Menu::navigateDown() {
     if (selectedItemIndex < menuItems.size() - 1) {
         menuItems[selectedItemIndex].setFillColor(sf::Color::White);
         ++selectedItemIndex;
-        menuItems[selectedItemIndex].setFillColor(sf::Color::Blue);
+        menuItems[selectedItemIndex].setFillColor(sf::Color::Green);
     }
 }
 
@@ -97,7 +97,7 @@ void Menu::handleInput(bool &isRunning) {
                 if (menuItems[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                     menuItems[selectedItemIndex].setFillColor(sf::Color::White);
                     selectedItemIndex = i;
-                    menuItems[selectedItemIndex].setFillColor(sf::Color::Blue);
+                    menuItems[selectedItemIndex].setFillColor(sf::Color::Green);
                     break;
                 }
             }

@@ -98,8 +98,12 @@ void Game::initWorld()
 Game::Game()
 {
     this->initVariables();
-    this->loadLevel(1);
-    this->initWorld();
+
+    // Adam: I commented it here because I moved it to startGame function
+    // because when running menu, then enemies were created
+
+    // this->loadLevel(1);
+    // this->initWorld();
 }
 
 Game::~Game()
@@ -137,9 +141,15 @@ void Game::render()
     this->window->render(this->background, screenContent);
 }
 
-void Game::startGame()
-{
-    // todo: this->startingScreen();
+void Game::startGame() {
+    this->startingScreen();
+    if (!this->window->running()) {
+        return;
+    }
+
+    this->loadLevel(1);
+    this->initWorld();
+
     this->gameLoop();
 }
 
@@ -233,5 +243,15 @@ void Game::gameLoop()
         this->placeTower();
         this->update();
         this->render();
+    }
+}
+
+void Game::startingScreen()
+{
+    Menu menu(this->window->getWindow());
+    int choice = menu.startMenu();
+
+    if (choice == 0) { //this ensures that if "play" is selected, the game will start
+        return;
     }
 }

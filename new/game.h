@@ -11,6 +11,11 @@
 #include "tower.h"
 #endif
 
+#ifndef MENU_H
+#define MENU_H
+#include "menu.h"
+#endif
+
 class Game
 {
 private:
@@ -121,4 +126,11 @@ public:
      * Calls `update` and `render` functions in a loop while game is running
      */
     void gameLoop();
+
+    /**
+     * @brief Start menu
+     *
+     * Opens start menu and waits for user to start a game, open settings or exit the game
+     */
+    void startingScreen();
 };

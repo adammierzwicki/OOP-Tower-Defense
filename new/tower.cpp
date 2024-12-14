@@ -1,18 +1,8 @@
 #include "tower.h"
 
-void Tower::initVariables()
-{
-    this->is_placed = false;
-    std::string path = "textures/tower_" + std::to_string(level) + ".png";
-    if (!this->texture.loadFromFile(path))
-    {
-        std::cout << "Error: could not load tower image from file: " << path << std::endl;
-    }
-    this->sprite.setTexture(this->texture);
-    this->sprite.setOrigin(43.f, 41.f);
-    this->sprite.setPosition(this->position);
-}
-
+//-----------------------------------
+//     Constructor and destructor
+//-----------------------------------
 Tower::Tower()
 {
     this->position = sf::Vector2f(-1, -1);
@@ -32,6 +22,7 @@ Tower::Tower(sf::Vector2f position, int level, int range, Gun *gun)
     this->initVariables();
 }
 
+// problematic constructor
 // Tower::Tower(sf::Vector2f position, int level, int range, std::unique_ptr<Gun> gun)
 // {
 //     // : position(position), is_placed(position.x != -1 && position.y != -1), level(level), range(range), gun_type(std::move(gun)) {
@@ -43,20 +34,14 @@ Tower::Tower(sf::Vector2f position, int level, int range, Gun *gun)
 //     this->initVariables();
 // }
 
-Tower::~Tower() {}
-
-void Tower::placeTower(int x, int y)
+Tower::~Tower()
 {
-    if (this->is_placed)
-    {
-        std::cout << "Tower is already placed at (" << this->position.x << ", " << this->position.y << ")." << std::endl;
-        return;
-    }
-    this->position = sf::Vector2f(x, y);
-    this->sprite.setPosition(this->position);
-    this->is_placed = true;
-    std::cout << "Tower placed at (" << this->position.x << ", " << this->position.y << ")." << std::endl;
+    delete this->gun_type;
 }
+
+//-----------------------------------
+//          Private methods
+//-----------------------------------
 
 void Tower::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
@@ -66,22 +51,9 @@ void Tower::draw(sf::RenderTarget &target, sf::RenderStates states) const
     }
 }
 
-void Tower::removeTower()
-{
-    if (!is_placed)
-    {
-        std::cout << "Tower is not placed." << std::endl;
-        return;
-    }
-    std::cout << "Tower removed from (" << position.x << ", " << position.y << ")." << std::endl;
-    is_placed = false;
-    position = sf::Vector2f(-1, -1);
-}
-
-sf::Vector2f Tower::getPosition()
-{
-    return position;
-}
+//-----------------------------------
+//          Public methods
+//-----------------------------------
 
 Enemy *Tower::getClosestEnemy(const std::vector<Enemy *> &enemies)
 {
@@ -102,6 +74,59 @@ Enemy *Tower::getClosestEnemy(const std::vector<Enemy *> &enemies)
         }
     }
     return closest_enemy;
+}
+
+sf::Vector2f Tower::getPosition()
+{
+    return position;
+}
+
+void Tower::initVariables()
+{
+    this->is_placed = false;
+    std::string path = "textures/tower_" + std::to_string(level) + ".png";
+    if (!this->texture.loadFromFile(path))
+    {
+        std::cout << "Error: could not load tower image from file: " << path << std::endl;
+    }
+    this->sprite.setTexture(this->texture);
+    this->sprite.setOrigin(43.f, 41.f);
+    this->sprite.setPosition(this->position);
+}
+
+void Tower::placeTower(int x, int y)
+{
+    if (this->is_placed)
+    {
+        std::cout << "Tower is already placed at (" << this->position.x << ", " << this->position.y << ")." << std::endl;
+        return;
+    }
+    this->position = sf::Vector2f(x, y);
+    this->sprite.setPosition(this->position);
+    this->is_placed = true;
+    std::cout << "Tower placed at (" << this->position.x << ", " << this->position.y << ")." << std::endl;
+}
+
+void Tower::removeTower()
+{
+    if (!is_placed)
+    {
+        std::cout << "Tower is not placed." << std::endl;
+        return;
+    }
+    std::cout << "Tower removed from (" << position.x << ", " << position.y << ")." << std::endl;
+    is_placed = false;
+    position = sf::Vector2f(-1, -1);
+}
+
+void Tower::setTile(int x, int y)
+{
+    this->occupiedTile = std::make_pair(x, y);
+}
+
+std::pair<int, int> Tower::getTile()
+{
+    return this->occupiedTile;
 }
 
 void Tower::shoot(Enemy *enemy)
@@ -127,6 +152,10 @@ Tower *Tower::upgrade()
     return new Tower2(position, level + 1, range + 10);
 }
 
+//-----------------------------------
+//              Tower2
+//-----------------------------------
+
 Tower2::Tower2(sf::Vector2f position, int level, int range)
 {
     this->position = position;
@@ -140,6 +169,10 @@ Tower *Tower2::upgrade()
     std::cout << "Upgrading Tower2 to Tower3" << std::endl;
     return new Tower3(position, level + 1, range + 10);
 }
+
+//-----------------------------------
+//              Tower3
+//-----------------------------------
 
 Tower3::Tower3(sf::Vector2f position, int level, int range)
 {

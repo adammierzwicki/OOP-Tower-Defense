@@ -1,64 +1,35 @@
-#include "game.h"
 #include <fstream>
 #include <algorithm>
 
+#include "game.h"
+
 //-----------------------------------
-//          Helper functions
+//     Constructor and destructor
 //-----------------------------------
 
-void Game::initVariables()
+Game::Game()
 {
-    this->level = 1;
-    this->window = new WindowHandler();
-    this->endGame = false;
-    this->playerHp = 100;
-    this->money = 100;
-
-    this->selectBox.setPointCount(4);
-    this->selectBox.setPoint(0, sf::Vector2f(0.0f, 33.0f));
-    this->selectBox.setPoint(1, sf::Vector2f(66.0f, 0.0f));
-    this->selectBox.setPoint(2, sf::Vector2f(132.0f, 33.0f));
-    this->selectBox.setPoint(3, sf::Vector2f(66.0f, 66.0f));
-    this->selectBox.setOrigin(66.0f, 0.0f);
-
-    this->selectBox.setFillColor(sf::Color::Transparent);
-    this->selectBox.setOutlineColor(sf::Color::Red);
-    this->selectBox.setOutlineThickness(5.0f);
+    this->initVariables();
 }
 
-void Game::loadLevel(int level)
+Game::~Game()
 {
-    std::string path = "levels/level_" + std::to_string(level) + ".map";
-    std::cout << path << std::endl;
-    std::fstream file(path);
-    if (file.is_open())
+    delete this->window;
+    for (size_t i = 0; i < this->enemies.size(); i++)
     {
-        std::string line;
-        std::getline(file, line);
-        while (!line.empty())
-        {
-            float x = std::stof(line.substr(0, line.find(',')));
-            float y = std::stof(line.substr(line.find(',') + 1));
-            std::cout << x << " " << y << std::endl;
-            this->enemyPath.push_back(sf::Vector2f(x, y));
-            std::getline(file, line);
-        }
-        while (std::getline(file, line))
-        {
-            std::string enemyType = line.substr(0, line.find(','));
-            int num = std::stoi(line.substr(line.find(',') + 1));
-            for (int i = 0; i < num; i++)
-            {
-                this->addEnemy(enemyType[0]);
-            }
-        }
+        delete this->enemies[i];
     }
-    else
+    for (size_t i = 0; i < this->towers.size(); i++)
     {
-        std::cout << "Error: could not load level" << std::endl;
+        delete this->towers[i];
     }
-    file.close();
+    delete this->levelInfo;
+    delete this->selectBox;
 }
+
+//-----------------------------------
+//          Private methods
+//-----------------------------------
 
 void Game::addEnemy(char enemyType)
 {
@@ -74,11 +45,69 @@ void Game::addEnemy(char enemyType)
     case 'H':
         enemy = new HeavyKnight();
         break;
-    default:
-        enemy = new Peasant();
-        break;
     }
+    enemy->setStartPosition(this->enemyPath[0]);
     this->enemies.push_back(enemy);
+}
+
+void Game::gameLoop()
+{
+    while (this->window->running())
+    {
+
+        this->updateSelectBox();
+        this->placeTower();
+        this->sellTower();
+        this->update();
+        this->render();
+    }
+}
+
+sf::Vector2f Game::getCursorProjection()
+{
+    sf::Vector2i mousePos = sf::Mouse::getPosition(*this->window->getWindow());
+    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+    sf::Vector2f mapOrigin = this->levelInfo->getMapCorners()[0];
+    sf::Vector2f tileSize = this->levelInfo->getMapTileSize();
+    sf::Vector2f tileHalfSize = tileSize / 2.0f;
+    // Convert screen coordinates to map coordinates
+    sf::Vector2f mapPos = mousePosF - mapOrigin;
+
+    // Calculate the tile coordinates
+    int tileX = static_cast<int>(std::floor((mapPos.x / tileHalfSize.x + mapPos.y / tileHalfSize.y) / 2));
+    int tileY = static_cast<int>(std::floor((mapPos.y / tileHalfSize.y - mapPos.x / tileHalfSize.x) / 2));
+
+    int invertedTileY = levelInfo->getMapHeight() + tileY;
+    this->currentTile = std::make_pair(tileX, invertedTileY);
+    if (levelInfo->isTileBlocked(tileX, invertedTileY))
+    {
+        selectBox->setColor(sf::Color::Red);
+        this->canPlaceTower = false;
+    }
+    else
+    {
+        selectBox->setColor(sf::Color::Green);
+        this->canPlaceTower = true;
+    }
+    // Calculate the top-left corner of the tile
+    sf::Vector2f vec = sf::Vector2f(tileX - tileY, tileX + tileY);
+    sf::Vector2f tilePos;
+    tilePos.x = mapOrigin.x + vec.x * tileHalfSize.x;
+    tilePos.y = mapOrigin.y + vec.y * tileHalfSize.y;
+
+    return tilePos;
+}
+
+void Game::initVariables()
+{
+    this->window = new WindowHandler();
+    this->endGame = false;
+    this->playerHp = 100;
+    this->money = 100;
+    this->cursorOnMap = false;
+    this->levelInfo = nullptr;
+    this->selectBox = new SelectBox();
+    this->canPlaceTower = false;
 }
 
 void Game::initWorld()
@@ -86,71 +115,9 @@ void Game::initWorld()
     std::string path = "textures/level_" + std::to_string(this->level) + ".png";
     if (!this->backgroundTexture.loadFromFile(path))
     {
-        std::cout << "Error: could not load level image" << std::endl;
+        std::cerr << "Error: could not load level image" << std::endl;
     }
     this->background.setTexture(this->backgroundTexture, true);
-}
-
-//-----------------------------------
-//     Constructor and destructor
-//-----------------------------------
-
-Game::Game()
-{
-    this->initVariables();
-
-    // Adam: I commented it here because I moved it to startGame function
-    // because when running menu, then enemies were created
-
-    // this->loadLevel(1);
-    // this->initWorld();
-}
-
-Game::~Game()
-{
-    delete this->window;
-    for (size_t i = 0; i < this->enemies.size(); i++)
-    {
-        delete this->enemies[i];
-    }
-    for (size_t i = 0; i < this->towers.size(); i++)
-    {
-        delete this->towers[i];
-    }
-}
-
-//-----------------------------------
-//          Game functions
-//-----------------------------------
-
-void Game::update()
-{
-    this->window->update();
-}
-
-void Game::render()
-{
-    std::vector<sf::Drawable *> screenContent;
-    if (cursorOnMap)
-    {
-        screenContent.push_back(&selectBox);
-    }
-    screenContent.insert(screenContent.end(), this->enemies.begin(), this->enemies.end());
-    screenContent.insert(screenContent.end(), this->towers.begin(), this->towers.end());
-
-    this->window->render(this->background, screenContent);
-}
-
-void Game::startGame() {
-    this->startingScreen();
-    if (!this->window->running()) {
-        return;
-    }
-
-    this->loadLevel(1);
-    this->initWorld();
-
-    this->gameLoop();
 }
 
 bool Game::isCursorOnMap()
@@ -158,10 +125,10 @@ bool Game::isCursorOnMap()
     sf::Vector2i mousePos = sf::Mouse::getPosition(*this->window->getWindow());
     sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
-    sf::Vector2f p1(142, 507);
-    sf::Vector2f p2(891, 132);
-    sf::Vector2f p3(1763, 568);
-    sf::Vector2f p4(1014, 943);
+    sf::Vector2f p1 = this->levelInfo->getMapCorners()[0];
+    sf::Vector2f p2 = this->levelInfo->getMapCorners()[1];
+    sf::Vector2f p3 = this->levelInfo->getMapCorners()[2];
+    sf::Vector2f p4 = this->levelInfo->getMapCorners()[3];
 
     auto sign = [](sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f p3)
     {
@@ -182,35 +149,88 @@ bool Game::isCursorOnMap()
     return false;
 }
 
-sf::Vector2f Game::getCursorProjection()
+void Game::loadLevel(int level)
 {
-    sf::Vector2i mousePos = sf::Mouse::getPosition(*this->window->getWindow());
-    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-    sf::Vector2f mapOrigin = sf::Vector2f(142.0f, 508.0f);
-    sf::Vector2f tileSize = sf::Vector2f(132.0f, 66.0f);
-    sf::Vector2f tileHalfSize = tileSize / 2.0f;
-    // Convert screen coordinates to map coordinates
-    sf::Vector2f mapPos = mousePosF - mapOrigin;
+    if (this->levelInfo != nullptr)
+    {
+        delete this->levelInfo;
+    }
+    this->level = level;
+    this->levelInfo = new LevelInfo(this->level);
+    this->enemyPath = this->levelInfo->getPath();
+    for (auto enemy : this->levelInfo->getEnemies())
+    {
+        for (int i = 0; i < enemy.second; i++)
+        {
+            this->addEnemy(enemy.first[0]);
+        }
+    }
+    this->backgroundTexture = this->levelInfo->getBackgroundTexture();
+}
 
-    // Calculate the tile coordinates
-    int tileX = static_cast<int>(std::floor((mapPos.x / tileHalfSize.x + mapPos.y / tileHalfSize.y) / 2));
-    int tileY = static_cast<int>(std::floor((mapPos.y / tileHalfSize.y - mapPos.x / tileHalfSize.x) / 2));
+void Game::placeTower()
+{   
+    if (this->isCursorOnMap() && this->canPlaceTower && sf::Mouse::isButtonPressed(sf::Mouse::Left) && !this->levelInfo->isTileBlocked(this->currentTile.first, this->currentTile.second))
+    {
+        this->levelInfo->blockTile(this->currentTile.first, this->currentTile.second);
+        Gun *gun = new MachineGun();
+        sf::Vector2f pos = this->getCursorProjection();
+        pos -= sf::Vector2f(0.0f, -15.0f);
+        Tower *tower = new Tower(pos, 1, 100, gun);
+        tower->setTile(this->currentTile.first, this->currentTile.second);
+        std::cout << "Tower placed at " << tower->getTile().first << " " << tower->getTile().second << std::endl;
+        std::cout << "Tower placed at " << tower->getPosition().x << " " << tower->getPosition().y << std::endl;
+        this->towers.push_back(tower);
+        sort(this->towers.begin(), this->towers.end(), [](Tower *a, Tower *b)
+             { return a->getPosition().y < b->getPosition().y; });
+    }
+}
 
-    // Calculate the top-left corner of the tile
-    sf::Vector2f vec = sf::Vector2f(tileX - tileY, tileX + tileY);
-    sf::Vector2f tilePos;
-    tilePos.x = mapOrigin.x + vec.x * tileHalfSize.x;
-    tilePos.y = mapOrigin.y + vec.y * tileHalfSize.y;
+void Game::render()
+{
+    std::vector<sf::Drawable *> screenContent;
+    if (cursorOnMap)
+    {
+        screenContent.push_back(selectBox);
+    }
+    screenContent.insert(screenContent.end(), this->enemies.begin(), this->enemies.end());
+    screenContent.insert(screenContent.end(), this->towers.begin(), this->towers.end());
 
-    return tilePos;
+    this->window->render(this->background, screenContent);
+}
+
+void Game::sellTower()
+{
+    if (this->isCursorOnMap() && sf::Mouse::isButtonPressed(sf::Mouse::Right) && this->levelInfo->isTileBlocked(this->currentTile.first, this->currentTile.second))
+    {
+        sf::Vector2f pos = this->getCursorProjection();
+        pos -= sf::Vector2f(0.0f, -15.0f);
+        for (size_t i = 0; i < this->towers.size(); i++)
+        {
+            std::cout << "Tower searched at " << towers[i]->getTile().first << " " << towers[i]->getTile().second << std::endl;
+            if (this->towers[i]->getTile() == this->currentTile)
+            {
+                std::cout << "Tower removed from " << towers[i]->getTile().first << " " << towers[i]->getTile().second << std::endl;
+                std::cout << "Tower removed from " << this->towers[i]->getPosition().x << " " << this->towers[i]->getPosition().y << std::endl;
+                this->levelInfo->unblockTile(this->currentTile.first, this->currentTile.second);
+                delete this->towers[i];
+                this->towers.erase(this->towers.begin() + i);
+                break;
+            }
+        }
+    }
+}
+void Game::update()
+{
+    this->window->update();
 }
 
 void Game::updateSelectBox()
 {
 
-    if (isCursorOnMap())
+    if (this->isCursorOnMap())
     {
-        this->selectBox.setPosition(getCursorProjection());
+        this->selectBox->setPosition(this->getCursorProjection());
         this->cursorOnMap = true;
     }
     else
@@ -219,31 +239,21 @@ void Game::updateSelectBox()
     }
 }
 
-void Game::placeTower()
-{
-    if (isCursorOnMap() && sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    {
-        Gun *gun = new MachineGun();
-        sf::Vector2f pos = getCursorProjection();
-        pos -= sf::Vector2f(0.0f, -15.0f);
-        Tower *tower = new Tower(pos, 1, 100, gun);
-        std::cout << "Tower placed at " << tower->getPosition().x << " " << tower->getPosition().y << std::endl;
-        this->towers.push_back(tower);
-        sort(this->towers.begin(), this->towers.end(), [](Tower *a, Tower *b)
-             { return a->getPosition().y < b->getPosition().y; });
-    }
-}
+//-----------------------------------
+//          Public methods
+//-----------------------------------
 
-void Game::gameLoop()
+void Game::startGame()
 {
-    while (this->window->running())
-    {
-
-        this->updateSelectBox();
-        this->placeTower();
-        this->update();
-        this->render();
+    this->startingScreen();
+    if (!this->window->running()) {
+        return;
     }
+
+    this->loadLevel(1);
+    this->initWorld();
+
+    this->gameLoop();
 }
 
 void Game::startingScreen()

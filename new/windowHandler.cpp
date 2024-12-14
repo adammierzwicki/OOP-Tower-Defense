@@ -1,20 +1,12 @@
 #include "windowHandler.h"
 
-void WindowHandler::initVariables()
-{
-}
-
-void WindowHandler::initWindow()
-{
-    this->videoMode = sf::VideoMode(1920, 1080);
-    this->window = new sf::RenderWindow(this->videoMode, "Tower Defense", sf::Style::Close | sf::Style::Titlebar);
-    this->window->setFramerateLimit(60);
-}
+//-----------------------------------
+//     Constructor and destructor
+//-----------------------------------
 
 // constructor and destructor
 WindowHandler::WindowHandler()
 {
-    this->initVariables();
     this->initWindow();
 }
 
@@ -23,10 +15,15 @@ WindowHandler::~WindowHandler()
     delete this->window;
 }
 
-// functions
-const bool WindowHandler::running() const
+//-----------------------------------
+//          Private methods
+//-----------------------------------
+
+void WindowHandler::initWindow()
 {
-    return this->window->isOpen();
+    this->videoMode = sf::VideoMode(1920, 1080);
+    this->window = new sf::RenderWindow(this->videoMode, "Tower Defense", sf::Style::Close | sf::Style::Titlebar);
+    this->window->setFramerateLimit(60);
 }
 
 void WindowHandler::pollEvents()
@@ -45,17 +42,31 @@ void WindowHandler::pollEvents()
             }
             break;
         }
+        if( this->windowEvent.type == this->windowEvent.MouseButtonReleased && this->windowEvent.mouseButton.button == sf::Mouse::Right ) {
+            std::cout << "RiGHT" << std::endl;
+        }
     }
 }
 
-void WindowHandler::update()
-{
-    this->pollEvents();
-}
 
-sf::RenderWindow *WindowHandler::getWindow()
+
+//-----------------------------------
+//             Accessors
+//-----------------------------------
+
+sf::RenderWindow *WindowHandler::getWindow() { return this->window; }
+
+//-----------------------------------
+//          Public methods
+//-----------------------------------
+
+bool WindowHandler::mouseLeftClicked()
 {
-    return this->window;
+    if (this->windowEvent.type == this->windowEvent.MouseButtonReleased && this->windowEvent.mouseButton.button == sf::Mouse::Left)
+    {
+        return true;
+    }
+    return false;
 }
 
 void WindowHandler::render(sf::Sprite background, std::vector<sf::Drawable *> screenContent)
@@ -74,3 +85,7 @@ void WindowHandler::render(sf::Sprite background, std::vector<sf::Drawable *> sc
 
     this->window->display();
 }
+
+const bool WindowHandler::running() const { return this->window->isOpen(); }
+
+void WindowHandler::update() { this->pollEvents(); }

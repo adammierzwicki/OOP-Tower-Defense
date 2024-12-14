@@ -1,7 +1,9 @@
 #include "enemy.h"
 
-// Base class
-// constructor and destructor
+//-----------------------------------
+//     Constructor and destructor
+//-----------------------------------
+
 Enemy::Enemy(std::string enemy_type, int hp, float speed)
 {
     this->enemy_type = enemy_type;
@@ -24,34 +26,47 @@ Enemy::~Enemy()
     std::cout << "Enemy destroyed" << std::endl;
 }
 
-// getters
-int Enemy::getHp()
+//-----------------------------------
+//          Protected methods
+//-----------------------------------
+
+void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-    return this->hp;
+    target.draw(this->shape, states);
 }
 
-int Enemy::getSpeed()
+void Enemy::initShape()
 {
-    return this->speed;
+    this->shape.setFillColor(sf::Color::Red);
+    this->shape.setSize(sf::Vector2f(50.f, 50.f));
 }
 
-std::string Enemy::getType()
-{
-    return this->enemy_type;
-}
+//-----------------------------------
+//             Accessors
+//-----------------------------------
 
-sf::Vector2f Enemy::getPosition()
-{
-    return this->position;
-}
+int Enemy::getHp() { return this->hp; }
 
-// setters
-void Enemy::setStartPosition(sf::Vector2f position)
+int Enemy::getSpeed() { return this->speed; }
+
+std::string Enemy::getType() { return this->enemy_type; }
+
+sf::Vector2f Enemy::getPosition() { return this->position; }
+
+//-----------------------------------
+//             Modifiers
+//-----------------------------------
+
+void Enemy::setStartPosition(sf::Vector2f position) 
 {
     this->position = position;
+    this->shape.setPosition(position);
 }
 
-// functions
+//-----------------------------------
+//          Public methods
+//-----------------------------------
+
 void Enemy::takeDamage(int damage)
 {
     this->hp -= damage;
@@ -73,45 +88,21 @@ bool Enemy::isDead()
 
 void Enemy::update()
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-    {
-        this->shape.move(-this->speed, 0.f);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-    {
-        this->shape.move(this->speed, 0.f);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-    {
-        this->shape.move(0.f, -this->speed);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-    {
-        this->shape.move(0.f, this->speed);
-    }
+    // todo: move enemy along path
 }
 
-void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
-{
-    target.draw(this->shape, states);
-}
+//-----------------------------------
+//              Peasant
+//-----------------------------------
 
-//=========================================================================
-// Specialized enemies
-// Peasant
 void Peasant::initShape()
 {
     this->shape.setFillColor(sf::Color::Red);
     this->shape.setSize(sf::Vector2f(50.f, 50.f));
 }
 
-void Peasant::initVariables()
-{
-}
-
 Peasant::Peasant() : Enemy("Peasant", 100, 2.f)
 {
-    this->initVariables();
     this->initShape();
     std::cout << "Peasant created" << std::endl;
 }
@@ -119,6 +110,10 @@ Peasant::~Peasant()
 {
     std::cout << "Peasant destroyed" << std::endl;
 }
+
+//-----------------------------------
+//              Warrior
+//-----------------------------------
 
 Warrior::Warrior() : Enemy("Warrior", 200, 5.f)
 {
@@ -129,6 +124,10 @@ Warrior::~Warrior()
 {
     std::cout << "Warrior destroyed" << std::endl;
 }
+
+//-----------------------------------
+//            HeavyKnight
+//-----------------------------------
 
 HeavyKnight::HeavyKnight() : Enemy("HeavyKnight", 600, 1.f)
 {

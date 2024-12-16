@@ -69,7 +69,7 @@ bool WindowHandler::mouseLeftClicked()
     return false;
 }
 
-void WindowHandler::render(sf::Sprite background, std::vector<sf::Drawable *> screenContent)
+void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject *> screenContent)
 {
 
     this->window->clear();
@@ -77,10 +77,9 @@ void WindowHandler::render(sf::Sprite background, std::vector<sf::Drawable *> sc
     this->window->draw(background);
 
     // render all objects
-    for (size_t i = 0; i < screenContent.size(); i++)
+    for (const sf::Drawable *object : screenContent)
     {
-        // screenContent[i]->draw(*this->window, sf::RenderStates::Default);
-        this->window->draw(*screenContent[i]);
+        this->window->draw(*object);
     }
 
     this->window->display();

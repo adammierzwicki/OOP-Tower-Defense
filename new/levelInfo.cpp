@@ -1,5 +1,5 @@
-#include "levelInfo.h"
 #include <iostream>
+#include "levelInfo.h"
 
 //-----------------------------------
 //     Constructor and destructor
@@ -109,6 +109,7 @@ void LevelInfo::loadPathPoints()
         float x = std::stof(line.substr(0, line.find(',')));
         float y = std::stof(line.substr(line.find(',') + 1));
         this->path.push_back(sf::Vector2f(x, y));
+        this->pathLength++;
         std::getline(this->mapFile, line);
     }
 }
@@ -136,6 +137,11 @@ std::map<std::string, int> LevelInfo::getEnemies()
     return this->enemies;
 }
 
+sf::Vector2f LevelInfo::getLastPathPoint()
+{
+    return this->path.back();
+}
+
 sf::Vector2f *LevelInfo::getMapCorners()
 {
     return this->mapCorners;
@@ -159,6 +165,11 @@ sf::Vector2f LevelInfo::getMapTileSize()
 std::vector<sf::Vector2f> LevelInfo::getPath()
 {
     return this->path;
+}
+
+int LevelInfo::getPathLength()
+{
+    return this->pathLength;
 }
 
 //-----------------------------------

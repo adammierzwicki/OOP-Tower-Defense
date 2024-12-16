@@ -9,7 +9,7 @@ Enemy::Enemy(std::string enemy_type, int hp, float speed)
     this->enemy_type = enemy_type;
     this->hp = hp;
     this->speed = speed;
-    this->position = sf::Vector2f(0.f, 0.f);
+    this->current_path_point = 0;
 }
 
 Enemy::Enemy(std::string enemy_type, int hp, float speed, sf::Vector2f position)
@@ -17,28 +17,45 @@ Enemy::Enemy(std::string enemy_type, int hp, float speed, sf::Vector2f position)
     this->enemy_type = enemy_type;
     this->hp = hp;
     this->speed = speed;
-    this->position = position;
-    this->shape.setPosition(position);
+    this->sprite.setPosition(position);
+    this->current_path_point = 0;
 }
 
 Enemy::~Enemy()
 {
+    // delete this->animation;
     std::cout << "Enemy destroyed" << std::endl;
+}
+
+//-----------------------------------
+//          Private methods
+//-----------------------------------
+
+void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+    target.draw(this->sprite, states);
+}
+
+void Enemy::animate(int row, float deltaTime)
+{
+    this->animation->update(row, deltaTime);
+    this->sprite.setTextureRect(this->animation->uvRect);
 }
 
 //-----------------------------------
 //          Protected methods
 //-----------------------------------
 
-void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
+void Enemy::initSprite()
 {
-    target.draw(this->shape, states);
-}
-
-void Enemy::initShape()
-{
-    this->shape.setFillColor(sf::Color::Red);
-    this->shape.setSize(sf::Vector2f(50.f, 50.f));
+    if (!this->texture.loadFromFile("textures/peasant_texture.png"))
+    {
+        std::cerr << "Error: could not load peasant texture" << std::endl;
+    }
+    this->animation = new Animation(&this->texture, sf::Vector2u(15, 4), 0.09f);
+    this->sprite.setTexture(this->texture);
+    this->sprite.setScale(0.4f, 0.4f);
+    this->sprite.setOrigin(13.7f, 120.f);
 }
 
 //-----------------------------------
@@ -51,7 +68,7 @@ int Enemy::getSpeed() { return this->speed; }
 
 std::string Enemy::getType() { return this->enemy_type; }
 
-sf::Vector2f Enemy::getPosition() { return this->position; }
+sf::Vector2f Enemy::getPosition() { return this->sprite.getPosition(); }
 
 //-----------------------------------
 //             Modifiers
@@ -59,8 +76,7 @@ sf::Vector2f Enemy::getPosition() { return this->position; }
 
 void Enemy::setStartPosition(sf::Vector2f position) 
 {
-    this->position = position;
-    this->shape.setPosition(position);
+    this->sprite.setPosition(position);
 }
 
 //-----------------------------------
@@ -86,28 +102,76 @@ bool Enemy::isDead()
     return this->hp <= 0;
 }
 
-void Enemy::update()
+void Enemy::moveAlong(std::vector<sf::Vector2f> &path)
 {
-    // todo: move enemy along path
+
+    if (this->current_path_point >= path.size())
+    {
+        return;
+    }
+    sf::Vector2f direction = path[this->current_path_point] - this->sprite.getPosition();
+
+    if (direction.x > 0 && direction.y > 0)
+    {
+        this->animation_row = 0;
+    }
+    else if (direction.x > 0 && direction.y < 0)
+    {
+        this->animation_row = 1;
+    }
+    else if (direction.x < 0 && direction.y < 0)
+    {
+        this->animation_row = 2;
+    }
+    else
+    {
+        this->animation_row = 3;
+    }
+
+    if (direction.x < 1 && direction.y < 1)
+    {
+        this->current_path_point++;
+    }
+    // Normalize the direction vector
+    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (length != 0)
+    {
+        direction /= length; 
+    }
+    this->sprite.setPosition(this->sprite.getPosition() + direction * this->speed);
+}
+
+void Enemy::update(std::vector<sf::Vector2f> &path, float deltaTime)
+{
+    this->moveAlong(path);
+    this->animate(this->animation_row, deltaTime);
 }
 
 //-----------------------------------
 //              Peasant
 //-----------------------------------
 
-void Peasant::initShape()
+void Peasant::initSprite()
 {
-    this->shape.setFillColor(sf::Color::Red);
-    this->shape.setSize(sf::Vector2f(50.f, 50.f));
+    if (!this->texture.loadFromFile("textures/peasant_texture.png"))
+    {
+        std::cerr << "Error: could not load peasant texture" << std::endl;
+    }
+    this->animation = new Animation(&this->texture, sf::Vector2u(15, 4), 0.09f);
+    this->sprite.setTexture(this->texture);
+    this->sprite.setScale(0.4f, 0.4f);
+    this->sprite.setOrigin(13.7f, 120.f);
+
 }
 
-Peasant::Peasant() : Enemy("Peasant", 100, 2.f)
+Peasant::Peasant() : Enemy("Peasant", 100, 0.5f)
 {
-    this->initShape();
+    this->initSprite();
     std::cout << "Peasant created" << std::endl;
 }
 Peasant::~Peasant()
 {
+    delete this->animation;
     std::cout << "Peasant destroyed" << std::endl;
 }
 

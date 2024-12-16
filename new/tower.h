@@ -1,14 +1,18 @@
+#pragma once
 #include <iostream>
 #include <memory>
 #include <vector>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include "gun.h"
 
-#ifndef ENEMY_H
-#define ENEMY_H
+#include "gun.h"
+#include "drawableObject.h"
 #include "enemy.h"
-#endif
+// #ifndef ENEMY_H
+// #define ENEMY_H
+// #include "enemy.h"
+// #endif
+
 
 /**
  * @brief Base class for all towers
@@ -16,7 +20,7 @@
  *
  * Contains basic attributes and methods for all towers, tower level 1
  */
-class Tower : public sf::Drawable
+class Tower : public DrawableObject
 {
 private:
     //-----------------------------------

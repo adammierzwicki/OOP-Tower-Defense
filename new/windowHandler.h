@@ -1,5 +1,7 @@
+#pragma once
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "drawableObject.h"
 
 /**
  * @brief Class for handling window and system events
@@ -85,7 +87,7 @@ public:
      *
      * Renders background and all objects from `screenContent` vector in order on window
      */
-    void render(sf::Sprite background, std::vector<sf::Drawable *> screenContent);
+    void render(sf::Sprite background, std::vector<DrawableObject *> screenContent);
 
     /**
      * @brief Check if window is open

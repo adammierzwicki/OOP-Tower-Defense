@@ -1,34 +1,42 @@
+#pragma once
 #include <vector>
 
-#ifndef WINDOWHANDLER_H
-#define WINDOWHANDLER_H
 #include "windowHandler.h"
-#endif
-
-#ifndef ENEMY_H
-#define ENEMY_H
 #include "enemy.h"
-#endif
-
-#ifndef TOWER_H
-#define TOWER_H
 #include "tower.h"
-#endif
-
-#ifndef LEVELINFO_H
-#define LEVELINFO_H
 #include "levelInfo.h"
-#endif
-
-#ifndef SELECTBOX_H
-#define SELECTBOX_H
 #include "selectBox.h"
-#endif
-
-#ifndef MENU_H
-#define MENU_H
 #include "menu.h"
-#endif
+
+// #ifndef WINDOWHANDLER_H
+// #define WINDOWHANDLER_H
+// #include "windowHandler.h"
+// #endif
+
+// #ifndef ENEMY_H
+// #define ENEMY_H
+// #include "enemy.h"
+// #endif
+
+// #ifndef TOWER_H
+// #define TOWER_H
+// #include "tower.h"
+// #endif
+
+// #ifndef LEVELINFO_H
+// #define LEVELINFO_H
+// #include "levelInfo.h"
+// #endif
+
+// #ifndef SELECTBOX_H
+// #define SELECTBOX_H
+// #include "selectBox.h"
+// #endif
+
+// #ifndef MENU_H
+// #define MENU_H
+// #include "menu.h"
+// #endif
 
 class Game
 {
@@ -49,12 +57,15 @@ private:
 
     sf::Texture backgroundTexture;
     sf::Sprite background;
-
+    
     SelectBox *selectBox;
     bool cursorOnMap;
     bool canPlaceTower;
 
     std::pair<int, int> currentTile;
+
+    float deltaTime;
+    sf::Clock clock;
 
     //-----------------------------------
     //          Private methods
@@ -188,4 +199,13 @@ public:
      * Opens start menu and waits for user to start a game, open settings or exit the game
      */
     void startingScreen();
+
+    /**
+     * @brief Update games clock
+     * 
+     * Updates games clock every iteration of game loop
+     */
+    void updateClock();
+
+    float getDeltaTime();
 };

@@ -1,7 +1,10 @@
+#pragma once
 #include <iostream>
 #include <utility>
 #include <cmath>
 #include <SFML/Graphics.hpp>
+#include "animation.h"
+#include "drawableObject.h"
 
 /**
  * @brief Base class for all enemies
@@ -9,7 +12,7 @@
  *
  * Contains basic attributes and methods for all enemies
  */
-class Enemy : public sf::Drawable
+class Enemy : public DrawableObject
 {
 private:
     //-----------------------------------
@@ -18,8 +21,8 @@ private:
 
     int hp;
     float speed;
-    sf::Vector2f position;
     std::string enemy_type;
+    int current_path_point = 0;
 
     //-----------------------------------
     //          Private methods
@@ -37,6 +40,8 @@ private:
      */
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states = sf::RenderStates::Default) const;
 
+    void animate(int row, float deltaTime);
+
 protected:
     //-----------------------------------
     //             Attributes
@@ -44,13 +49,14 @@ protected:
 
     sf::Texture texture;
     sf::Sprite sprite;
-    sf::RectangleShape shape;
+    Animation *animation;
+    int animation_row;
 
     //-----------------------------------
     //          Protected methods
     //-----------------------------------
 
-    virtual void initShape();
+    virtual void initSprite();
 
 public:
     //-----------------------------------
@@ -144,19 +150,20 @@ public:
     void takeDamage(int damage);
 
     /**
-     * @brief Update enemy position
+     * @brief Move enemy along path
      *
      * Moves enemy in the direction of the path
      */
-    void update();
+    // sf::Vector2f moveAlong(std::vector<sf::Vector2f> &path);
+    void moveAlong(std::vector<sf::Vector2f> &path);
 
-    // todo: someType animate();
+    void update(std::vector<sf::Vector2f> &path, float deltaTime);
 };
 
 class Peasant : public Enemy
 {
 private:
-    void initShape() override;
+    void initSprite() override;
 
 public:
     Peasant();

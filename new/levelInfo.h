@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <fstream>
@@ -21,6 +22,7 @@ private:
     std::fstream mapFile;
     std::map<std::string, int> enemies;
     std::vector<sf::Vector2f> path;
+    int pathLength;
     std::pair<int, int> mapSize;
     std::vector<std::vector<bool>> map;
     sf::Vector2f mapTileSize;
@@ -114,6 +116,14 @@ public:
     std::map<std::string, int> getEnemies();
 
     /**
+     * @brief Get last point of path
+     * @return End point of path
+     * 
+     * Get last point of path in vector format
+     */
+    sf::Vector2f getLastPathPoint();
+
+    /**
      * @brief Get map corners coordinates
      * @return Vector with map corners coordinates
      */
@@ -144,6 +154,14 @@ public:
      * Get path points in vector format
      */
     std::vector<sf::Vector2f> getPath();
+
+    /**
+     * @brief Get number of path points
+     * @return Path length
+     *
+     * Get number of path points
+     */
+    int getPathLength();
 
     //-----------------------------------
     //          Public methods

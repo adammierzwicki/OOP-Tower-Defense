@@ -44,3 +44,8 @@ void SelectBox::setPosition(sf::Vector2f position)
 {
     this->shape.setPosition(position);
 }
+
+sf::Vector2f SelectBox::getPosition()
+{
+    return this->shape.getPosition();
+}

@@ -90,7 +90,8 @@ void Tower::initVariables()
         std::cout << "Error: could not load tower image from file: " << path << std::endl;
     }
     this->sprite.setTexture(this->texture);
-    this->sprite.setOrigin(43.f, 41.f);
+    // this->sprite.setOrigin(this->sprite.getGlobalBounds().width / 2, this->sprite.getGlobalBounds().height / 2);
+    this->sprite.setOrigin(44.f, 71.f);
     this->sprite.setPosition(this->position);
 }
 

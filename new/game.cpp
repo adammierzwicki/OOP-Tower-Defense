@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "game.h"
+#include "drawableObject.h"
 
 //-----------------------------------
 //     Constructor and destructor
@@ -54,7 +55,7 @@ void Game::gameLoop()
 {
     while (this->window->running())
     {
-
+        this->updateClock();
         this->updateSelectBox();
         this->placeTower();
         this->sellTower();
@@ -108,6 +109,7 @@ void Game::initVariables()
     this->levelInfo = nullptr;
     this->selectBox = new SelectBox();
     this->canPlaceTower = false;
+    this->deltaTime = 0.f;
 }
 
 void Game::initWorld()
@@ -169,7 +171,7 @@ void Game::loadLevel(int level)
 }
 
 void Game::placeTower()
-{   
+{
     if (this->isCursorOnMap() && this->canPlaceTower && sf::Mouse::isButtonPressed(sf::Mouse::Left) && !this->levelInfo->isTileBlocked(this->currentTile.first, this->currentTile.second))
     {
         this->levelInfo->blockTile(this->currentTile.first, this->currentTile.second);
@@ -181,21 +183,23 @@ void Game::placeTower()
         std::cout << "Tower placed at " << tower->getTile().first << " " << tower->getTile().second << std::endl;
         std::cout << "Tower placed at " << tower->getPosition().x << " " << tower->getPosition().y << std::endl;
         this->towers.push_back(tower);
-        sort(this->towers.begin(), this->towers.end(), [](Tower *a, Tower *b)
-             { return a->getPosition().y < b->getPosition().y; });
+        // sort(this->towers.begin(), this->towers.end(), [](Tower *a, Tower *b)
+        //      { return a->getPosition().y < b->getPosition().y; });
     }
 }
 
 void Game::render()
 {
-    std::vector<sf::Drawable *> screenContent;
+    // std::vector<sf::Drawable *> screenContent;
+    std::vector<DrawableObject *> screenContent;
     if (cursorOnMap)
     {
         screenContent.push_back(selectBox);
     }
     screenContent.insert(screenContent.end(), this->enemies.begin(), this->enemies.end());
     screenContent.insert(screenContent.end(), this->towers.begin(), this->towers.end());
-
+    sort(screenContent.begin(), screenContent.end(), [](DrawableObject *a, DrawableObject *b)
+             {return a->getPosition().y < b->getPosition().y; });
     this->window->render(this->background, screenContent);
 }
 
@@ -223,6 +227,24 @@ void Game::sellTower()
 void Game::update()
 {
     this->window->update();
+    for (size_t i = 0; i < this->enemies.size(); i++)
+    {
+        this->enemies[i]->update(this->enemyPath, this->deltaTime);
+        sf::Vector2f diff = this->levelInfo->getLastPathPoint() - this->enemies[i]->getPosition();
+        if (diff.x < 1.f && diff.y < 1.f)
+        {
+            this->playerHp -= 10;
+            std::cout << "Player hp: " << this->playerHp << std::endl;
+            delete this->enemies[i];
+            this->enemies.erase(this->enemies.begin() + i);
+        }
+        else if (this->enemies[i]->isDead())
+        {
+            delete this->enemies[i];
+            this->enemies.erase(this->enemies.begin() + i);
+            // money += 10;
+        }
+    }
 }
 
 void Game::updateSelectBox()
@@ -246,7 +268,8 @@ void Game::updateSelectBox()
 void Game::startGame()
 {
     this->startingScreen();
-    if (!this->window->running()) {
+    if (!this->window->running())
+    {
         return;
     }
 
@@ -261,7 +284,16 @@ void Game::startingScreen()
     Menu menu(this->window->getWindow());
     int choice = menu.startMenu();
 
-    if (choice == 0) { //this ensures that if "play" is selected, the game will start
+    if (choice == 0) // this ensures that if "play" is selected, the game will start
+    {
         return;
     }
 }
+
+void Game::updateClock()
+{
+    this->deltaTime = this->clock.restart().asSeconds();
+}
+
+float Game::getDeltaTime() { return this->deltaTime; }
+

@@ -1,11 +1,13 @@
+#pragma once
 #include <SFML/Graphics.hpp>
+#include "drawableObject.h"
 
 /**
  * @brief Class for drawing tower select box on screen
  *
  * Contains methods for drawing select box on screen and setting its color and position
  */
-class SelectBox : public sf::Drawable
+class SelectBox : public DrawableObject
 {
 private:
     //-----------------------------------
@@ -49,6 +51,20 @@ public:
      * Default destructor for SelectBox object
      */
     ~SelectBox();
+
+    //-----------------------------------
+    //             Accessors
+    //-----------------------------------
+
+    /**
+     * @brief Get select box position
+     * @return Select box position
+     *
+     * Get select box position in sf::Vector2f format.
+     * 
+     * Implemented from DrawableObject interface
+     */
+    sf::Vector2f getPosition();
 
     //-----------------------------------
     //             Modifiers

@@ -23,6 +23,7 @@ void WindowHandler::initWindow()
 {
     this->videoMode = sf::VideoMode(1920, 1080);
     this->window = new sf::RenderWindow(this->videoMode, "Tower Defense", sf::Style::Close | sf::Style::Titlebar);
+    this->window->setPosition(sf::Vector2i(0, 0));
     this->window->setFramerateLimit(60);
 }
 

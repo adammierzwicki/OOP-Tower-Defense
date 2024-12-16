@@ -183,8 +183,6 @@ void Game::placeTower()
         std::cout << "Tower placed at " << tower->getTile().first << " " << tower->getTile().second << std::endl;
         std::cout << "Tower placed at " << tower->getPosition().x << " " << tower->getPosition().y << std::endl;
         this->towers.push_back(tower);
-        // sort(this->towers.begin(), this->towers.end(), [](Tower *a, Tower *b)
-        //      { return a->getPosition().y < b->getPosition().y; });
     }
 }
 

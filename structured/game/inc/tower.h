@@ -48,7 +48,6 @@ protected:
     bool is_placed;
     int level;
     int range;
-    // todo: why unique_ptr?  std::unique_ptr<Gun> gun_type;
     Gun *gun_type;
     sf::Texture texture;
     sf::Sprite sprite;
@@ -102,7 +101,7 @@ public:
      *
      * Get tower position in sf::Vector2f format
      */
-    sf::Vector2f getPosition();
+    sf::Vector2f getPosition() const override;
 
     /**
      * @brief Initialize tower variables
@@ -150,7 +149,7 @@ public:
      *
      * Shoot at enemy if tower is placed and enemy is in range
      */
-    virtual void shoot(Enemy *enemy = nullptr);
+    virtual void shoot(Enemy *enemy);
 
     /**
      * @brief Upgrade tower

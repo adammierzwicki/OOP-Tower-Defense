@@ -58,7 +58,8 @@ int Enemy::getSpeed() const { return this->speed; }
 
 std::string Enemy::getType() const { return this->enemy_type; }
 
-sf::Vector2f Enemy::getPosition() const { return this->sprite.getPosition(); }
+sf::Vector2f Enemy::getPosition() const {
+    return this->sprite.getPosition(); }
 
 //-----------------------------------
 //             Modifiers

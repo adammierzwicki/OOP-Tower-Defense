@@ -6,6 +6,8 @@
 #include "selectBox.h"
 #include "tower.h"
 #include "windowHandler.h"
+#include "ui.h"
+
 
 class Game
 {
@@ -23,6 +25,8 @@ private:
     int money;
     bool endGame;
     std::vector<sf::Vector2f> enemyPath;
+    UI *ui;
+    int round;
 
     sf::Texture backgroundTexture;
     sf::Sprite background;
@@ -53,6 +57,8 @@ private:
      * (P - Peasant, W - Warrior, H - HeavyKnight)
      */
     void addEnemy(char enemyType);
+
+    void attack();
 
     /**
      * @brief Game loop
@@ -138,6 +144,7 @@ private:
      */
     void update();
 
+
     /**
      * @brief Updates position of selectBox
      *
@@ -145,6 +152,8 @@ private:
      */
     void updateSelectBox();
 
+    void updateUI();
+    
 public:
     //-----------------------------------
     //     Constructor and destructor

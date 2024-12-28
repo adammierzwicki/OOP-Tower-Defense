@@ -50,10 +50,6 @@ Enemy *Tower::getClosestEnemy(const std::vector<Enemy *> &enemies)
     float min_distance = range + 1;
     for (auto enemy : enemies)
     {
-        if (enemy->isDead())
-        {
-            continue;
-        }
         sf::Vector2f enemy_position = enemy->getPosition();
         float distance = sqrt(pow(position.x - enemy_position.x, 2) + pow(position.y - enemy_position.y, 2));
         if (distance < min_distance)
@@ -65,9 +61,9 @@ Enemy *Tower::getClosestEnemy(const std::vector<Enemy *> &enemies)
     return closest_enemy;
 }
 
-sf::Vector2f Tower::getPosition()
-{
-    return position;
+sf::Vector2f Tower::getPosition() const 
+{   
+    return this->sprite.getPosition();
 }
 
 void Tower::initVariables()
@@ -121,11 +117,11 @@ std::pair<int, int> Tower::getTile()
 
 void Tower::shoot(Enemy *enemy)
 {
-    if (!is_placed)
-    {
-        std::cout << "Tower is not placed and cannot shoot." << std::endl;
-        return;
-    }
+    // if (!is_placed)
+    // {
+    //     std::cout << "Tower is not placed and cannot shoot." << std::endl;
+    //     return;
+    // }
     gun_type->fire();
     if (enemy == nullptr)
     {

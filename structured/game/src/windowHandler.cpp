@@ -64,7 +64,7 @@ bool WindowHandler::mouseLeftClicked()
     return false;
 }
 
-void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject *> screenContent)
+void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject *> screenContent, UI *ui)
 {
 
     this->window->clear();
@@ -74,7 +74,7 @@ void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject *> 
     {
         this->window->draw(*object);
     }
-
+    ui->render();
     this->window->display();
 }
 

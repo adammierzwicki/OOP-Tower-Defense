@@ -3,6 +3,7 @@
 
 #include "../inc/drawableObject.h"
 #include "../inc/game.h"
+#include "../inc/ui.h"
 
 //-----------------------------------
 //     Constructor and destructor
@@ -16,6 +17,8 @@ Game::Game()
 Game::~Game()
 {
     delete this->window;
+    // delete this->selectBox;
+    delete this->ui;
     for (size_t i = 0; i < this->enemies.size(); i++)
     {
         delete this->enemies[i];
@@ -51,6 +54,16 @@ void Game::addEnemy(char enemyType)
     this->enemies.push_back(enemy);
 }
 
+void Game::attack()
+{
+    for (size_t i = 0; i < this->towers.size(); i++)
+    {
+        Enemy *closestEnemy = this->towers[i]->getClosestEnemy(this->enemies);
+
+        this->towers[i]->shoot(closestEnemy);
+    }
+}
+
 void Game::gameLoop()
 {
     while (this->window->running())
@@ -60,6 +73,8 @@ void Game::gameLoop()
         this->placeTower();
         this->sellTower();
         this->update();
+        this->ui->handleInput();
+        this->updateUI();
         this->render();
     }
 }
@@ -102,6 +117,8 @@ sf::Vector2f Game::getCursorProjection()
 void Game::initVariables()
 {
     this->window = new WindowHandler();
+    this->ui = new UI(this->window->getWindow());
+    this->round = 0;
     this->endGame = false;
     this->playerHp = 100;
     this->money = 100;
@@ -185,6 +202,7 @@ void Game::placeTower()
         pos -= sf::Vector2f(0.0f, -15.0f);
         Tower *tower = new Tower(pos, 1, 100, gun);
         tower->setTile(this->currentTile.first, this->currentTile.second);
+
         std::cout << "Tower placed at " << tower->getTile().first << " " << tower->getTile().second << std::endl;
         std::cout << "Tower placed at " << tower->getPosition().x << " " << tower->getPosition().y << std::endl;
 
@@ -194,7 +212,6 @@ void Game::placeTower()
 
 void Game::render()
 {
-    // std::vector<sf::Drawable *> screenContent;
     std::vector<DrawableObject *> screenContent;
     if (cursorOnMap)
     {
@@ -202,9 +219,11 @@ void Game::render()
     }
     screenContent.insert(screenContent.end(), this->enemies.begin(), this->enemies.end());
     screenContent.insert(screenContent.end(), this->towers.begin(), this->towers.end());
+
     sort(screenContent.begin(), screenContent.end(), [](DrawableObject *a, DrawableObject *b)
          { return a->getPosition().y < b->getPosition().y; });
-    this->window->render(this->background, screenContent);
+
+    this->window->render(this->background, screenContent, ui);
 }
 
 void Game::sellTower()
@@ -232,19 +251,15 @@ void Game::sellTower()
 void Game::spawnEnemy()
 {
     this->spawnTimer += this->deltaTime;
-    // std::cout << "Start " << this->spawnTimer << std::endl;
-    // std::cout << "StartDelay: " << this->spawnDelay << std::endl;
     if (this->spawnTimer >= this->spawnDelay)
     {
         this->spawnTimer -= this->spawnDelay;
-        // std::cout << "Decreased " << this->spawnTimer << std::endl;
         this->nextToSpawn++;
 
         if (this->nextToSpawn < this->levelInfo->getEnemiesVector().size())
         {
             this->addEnemy(this->levelInfo->getEnemiesVector()[this->nextToSpawn]);
             this->spawnDelay = 0.8f + (static_cast<float>(rand() % 10)) / 10;
-            std::cout << "NewDelay " << this->spawnDelay << std::endl;
         }
     }
 }
@@ -286,6 +301,13 @@ void Game::updateSelectBox()
     {
         this->cursorOnMap = false;
     }
+}
+
+void Game::updateUI()
+{
+    this->ui->setRoundText(this->round);
+    this->ui->setHealthText(this->playerHp);
+    this->ui->setMoneyText(this->money);
 }
 
 //-----------------------------------

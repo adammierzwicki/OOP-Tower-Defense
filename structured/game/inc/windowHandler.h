@@ -20,6 +20,7 @@ private:
     sf::RenderWindow *window;
     sf::VideoMode videoMode;
     sf::Event windowEvent;
+    std::vector<sf::Event> events;
 
     //-----------------------------------
     //          Private methods
@@ -31,7 +32,6 @@ private:
      * Sets window size, title and framerate limit, opens new window
      */
     void initWindow();
-
     /**
      * @brief Poll events
      *
@@ -39,7 +39,9 @@ private:
      */
     void pollEvents();
 
+
 public:
+
     //-----------------------------------
     //     Constructor and destructor
     //-----------------------------------
@@ -103,4 +105,6 @@ public:
      * Calls `pollEvents` function
      */
     void update();
+
+    const std::vector<sf::Event> &getEvents() const;
 };

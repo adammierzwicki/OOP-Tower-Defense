@@ -3,29 +3,23 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
+#include <iostream>
+#include "windowHandler.h"
 
 class UI {
 private:
     sf::Font font;
-    sf::RenderWindow* window;
-    // std::vector<sf::Text> buttons;
-
-    // sf::Texture backgroundTexture;
-    // sf::Sprite backgroundSprite;
-
-    sf::Text gunType1Button;
-    sf::Text gunType2Button;
-    sf::Text gunType3Button;
-    sf::Text startGameButton;
+    WindowHandler* windowHandler;
 
     sf::Text roundDisplay;
     sf::Text healthDisplay;
     sf::Text moneyDisplay;
 
+    std::vector<sf::Text> buttons;
     int selectedButtonIndex;
 
 public:
-    UI(sf::RenderWindow* window);
+    UI(WindowHandler* windowHandler);
     ~UI();
 
     void render();

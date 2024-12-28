@@ -3,7 +3,7 @@
 
 #include "../inc/drawableObject.h"
 #include "../inc/game.h"
-#include "../inc/ui.h"
+// #include "../inc/ui.h"
 
 //-----------------------------------
 //     Constructor and destructor
@@ -117,7 +117,7 @@ sf::Vector2f Game::getCursorProjection()
 void Game::initVariables()
 {
     this->window = new WindowHandler();
-    this->ui = new UI(this->window->getWindow());
+    this->ui = new UI(this->window);
     this->round = 0;
     this->endGame = false;
     this->playerHp = 100;

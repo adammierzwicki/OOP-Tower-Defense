@@ -28,8 +28,10 @@ void WindowHandler::initWindow()
 
 void WindowHandler::pollEvents()
 {
+    this->events.clear();
     while (this->window->pollEvent(this->windowEvent))
     {
+        events.push_back(this->windowEvent);
         switch (this->windowEvent.type)
         {
         case sf::Event::Closed:
@@ -41,6 +43,8 @@ void WindowHandler::pollEvents()
                 this->window->close();
             }
             break;
+        default:
+            break;
         }
     }
 }
@@ -50,6 +54,8 @@ void WindowHandler::pollEvents()
 //-----------------------------------
 
 sf::RenderWindow *WindowHandler::getWindow() const { return this->window; }
+
+const std::vector<sf::Event> &WindowHandler::getEvents() const { return this->events; }
 
 //-----------------------------------
 //          Public methods
@@ -81,3 +87,4 @@ void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject *> 
 bool WindowHandler::running() const { return this->window->isOpen(); }
 
 void WindowHandler::update() { this->pollEvents(); }
+

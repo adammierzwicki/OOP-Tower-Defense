@@ -1,8 +1,7 @@
 all: compile link
 
 compile:
-	cd /game/out -Wall
-	g++ -c /game/src/*.cpp
+	cd /game/out &&	g++ -c /game/src/*.cpp -Wall
 
 link:
 	g++ game/out/*.o -o ../../tower-defense.exe -Wall -lsfml-graphics -lsfml-window -lsfml-system

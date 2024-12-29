@@ -165,6 +165,8 @@ public:
      */
     int getPathLength();
 
+    int getRoundsCount();
+
     //-----------------------------------
     //          Public methods
     //-----------------------------------

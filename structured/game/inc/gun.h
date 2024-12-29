@@ -14,9 +14,9 @@ protected:
     //             Attributes
     //-----------------------------------
 
+    std::string gun_name;
     int damage;
     float shooting_speed;
-    std::string gun_name;
 
 public:
     //-----------------------------------

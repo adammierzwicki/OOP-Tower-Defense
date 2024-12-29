@@ -81,7 +81,7 @@ bool Enemy::isDead()
 
 void Enemy::moveAlong(std::vector<sf::Vector2f> &path)
 {
-    if (this->current_path_point >= path.size())
+    if (this->current_path_point >= static_cast<int>(path.size()))
     {
         return;
     }
@@ -193,7 +193,7 @@ void Peasant::initSprite()
 //              Warrior
 //-----------------------------------
 
-Warrior::Warrior() : Enemy("Warrior", 200, 5.f)
+Warrior::Warrior() : Enemy("Warrior", 200, 3.f)
 {
     this->initSprite();
     std::cout << "Warrior created" << std::endl;
@@ -211,15 +211,16 @@ Warrior::~Warrior()
 
 void Warrior::initSprite()
 {
+    std::cout << "Loading warrior texture" << std::endl;
     if (!this->texture.loadFromFile("textures/warrior_texture.png"))
     {
         throw std::runtime_error("Unable to load warrior texture");
     }
     // TODO change values after adding texture
-    this->animation = new Animation(&this->texture, sf::Vector2u(15, 4), 0.09f);
+    this->animation = new Animation(&this->texture, sf::Vector2u(14, 8), 0.15f);
     this->sprite.setTexture(this->texture);
-    this->sprite.setScale(0.4f, 0.4f);
-    this->sprite.setOrigin(13.7f, 120.f);
+    this->sprite.setScale(1.f, 1.f);
+    this->sprite.setOrigin(60.f, 80.f);
 }
 
 //-----------------------------------
@@ -249,8 +250,8 @@ void HeavyKnight::initSprite()
         throw std::runtime_error("Unable to load heavy knight texture");
     }
     // TODO change values after adding texture
-    this->animation = new Animation(&this->texture, sf::Vector2u(15, 4), 0.09f);
+    this->animation = new Animation(&this->texture, sf::Vector2u(14, 8), 0.15f);
     this->sprite.setTexture(this->texture);
-    this->sprite.setScale(0.4f, 0.4f);
-    this->sprite.setOrigin(13.7f, 120.f);
+    this->sprite.setScale(1.f, 1.f);
+    this->sprite.setOrigin(60.f, 80.f);
 }

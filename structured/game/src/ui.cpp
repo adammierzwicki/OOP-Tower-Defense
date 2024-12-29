@@ -97,7 +97,7 @@ UI::UI(WindowHandler* windowHandler) : windowHandler(windowHandler), selectedBut
             button.nameText.setString(label);
             button.nameText.setCharacterSize(30);
             button.nameText.setFillColor(sf::Color::White);
-            sf::FloatRect nameBounds = button.nameText.getLocalBounds();
+            // sf::FloatRect nameBounds = button.nameText.getLocalBounds();
             button.nameText.setPosition(
                 xPosition + 20.0f,
                 yPosition + 10.0f
@@ -107,7 +107,7 @@ UI::UI(WindowHandler* windowHandler) : windowHandler(windowHandler), selectedBut
             button.priceText.setString("Price: " + std::to_string(price));
             button.priceText.setCharacterSize(25);
             button.priceText.setFillColor(sf::Color::White);
-            sf::FloatRect priceBounds = button.priceText.getLocalBounds();
+            // sf::FloatRect priceBounds = button.priceText.getLocalBounds();
             button.priceText.setPosition(
                 xPosition + 20.0f,
                 yPosition + buttonHeight - 40.0f
@@ -123,7 +123,7 @@ UI::UI(WindowHandler* windowHandler) : windowHandler(windowHandler), selectedBut
             button.nameText.setString(label);
             button.nameText.setCharacterSize(55);
             button.nameText.setFillColor(sf::Color::White);
-            sf::FloatRect nameBounds = button.nameText.getLocalBounds();
+            // sf::FloatRect nameBounds = button.nameText.getLocalBounds();
             button.nameText.setPosition(
                 xPosition + 20.0f,
                 yPosition + 10.0f

@@ -2,9 +2,15 @@
 305,425
 ...
 \n
-# Enemies in format char name, int number
+# Number of rounds, int
+5
+
+# Enemies in format char name, int
 # P - Peasant, W - Warrior, H - Heavy Knight
 P,10
+...
+\n
+W,3
 ...
 \n
 # Number of tiles in format width,height

@@ -162,6 +162,8 @@ private:
     void interpretUIInput();
 
     void loadSave();
+
+    void isRoundOver();
     
 public:
     //-----------------------------------

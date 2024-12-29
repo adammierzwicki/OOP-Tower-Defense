@@ -185,6 +185,11 @@ int LevelInfo::getPathLength()
     return this->pathLength;
 }
 
+int LevelInfo::getRoundsCount()
+{
+    return this->roundsCount;
+}
+
 //-----------------------------------
 //          Public methods
 //-----------------------------------

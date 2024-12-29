@@ -39,6 +39,7 @@ Game::~Game()
 
 void Game::addEnemy(char enemyType, sf::Vector2f initialPos = {-1.f, -1.f})
 {
+    std::cout << "Adding enemy " << enemyType << std::endl;
     Enemy *enemy;
     switch (enemyType)
     {
@@ -94,6 +95,7 @@ void Game::gameLoop()
         this->interpretUIInput();
         this->updateUI();
         this->render();
+        this->isRoundOver();
     }
 }
 
@@ -201,13 +203,6 @@ void Game::loadLevel(int level)
     this->level = level;
     this->levelInfo = new LevelInfo(this->level);
     this->enemyPath = this->levelInfo->getPath();
-    // for (auto enemy : this->levelInfo->getEnemies())
-    // {
-    //     for (int i = 0; i < enemy.second; i++)
-    //     {
-    //         this->addEnemy(enemy.first[0]);
-    //     }
-    // }
     this->backgroundTexture = this->levelInfo->getBackgroundTexture();
 }
 
@@ -288,7 +283,7 @@ void Game::spawnEnemy()
         this->spawnTimer -= this->spawnDelay;
         this->nextToSpawn++;
 
-        if (this->nextToSpawn < this->levelInfo->getEnemiesVector(this->round).size())
+        if (this->nextToSpawn < static_cast<int>(this->levelInfo->getEnemiesVector(this->round).size()))
         {
             this->addEnemy(this->levelInfo->getEnemiesVector(this->round)[this->nextToSpawn]);
             this->spawnDelay = 0.8f + (static_cast<float>(rand() % 10)) / 10;
@@ -435,6 +430,30 @@ void Game::loadSave()
     file.close();
 }
 
+void Game::isRoundOver()
+{
+    if (this->playerHp <=0){
+            this->endGame = true;
+            this->window->getWindow()->close();
+            std::cout << "You lost!" << std::endl;
+            return;
+    }
+    if (this->round == this->levelInfo->getRoundsCount())
+        {
+            this->endGame = true;
+            this->window->getWindow()->close();
+            std::cout << "You won!" << std::endl;
+            return;
+        }
+    // std::cout << "Enemies: " << this->enemies.size() << " Next to spawn: " << this->nextToSpawn << " " << this->levelInfo->getEnemiesVector(this->round).size() << std::endl;
+    if (this->enemies.size() == 0 && this->nextToSpawn > static_cast<int>(this->levelInfo->getEnemiesVector(this->round).size()) && this->isRoundStarted)
+    {
+        std::cout << "Round ended" << std::endl;
+        this->round++;
+        this->isRoundStarted = false;
+        this->nextToSpawn = -1;
+    }
+}
 //-----------------------------------
 //          Public methods
 //-----------------------------------

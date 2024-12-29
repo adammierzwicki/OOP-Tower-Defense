@@ -4,10 +4,10 @@
 class Menu
 {
 private:
+    sf::RenderWindow *window;
+    int selectedItemIndex;
     sf::Font font;
     std::vector<sf::Text> menuItems;
-    int selectedItemIndex;
-    sf::RenderWindow *window;
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
 

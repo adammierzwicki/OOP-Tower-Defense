@@ -64,7 +64,7 @@ void Menu::navigateUp() {
 }
 
 void Menu::navigateDown() {
-    if (selectedItemIndex < menuItems.size() - 1) {
+    if (selectedItemIndex < static_cast<int>(menuItems.size()) - 1) {
         menuItems[selectedItemIndex].setFillColor(sf::Color::White);
         ++selectedItemIndex;
         menuItems[selectedItemIndex].setFillColor(sf::Color::Green);

@@ -37,7 +37,9 @@ private:
      * Implemented from sf::Drawable interface
      */
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states = sf::RenderStates::Default) const;
-
+    
+    void initRange();
+    
 protected:
     //-----------------------------------
     //             Attributes
@@ -51,6 +53,10 @@ protected:
     Gun *gun_type;
     sf::Texture texture;
     sf::Sprite sprite;
+
+    float shootTimer;
+    sf::CircleShape rangeCircle;
+    bool showRange;
 
 public:
     //-----------------------------------
@@ -108,7 +114,7 @@ public:
      *
      * Load tower texture and set sprite position
      */
-    void initVariables();
+    virtual void initVariables();
 
     /**
      * @brief Place tower on map
@@ -149,7 +155,7 @@ public:
      *
      * Shoot at enemy if tower is placed and enemy is in range
      */
-    virtual void shoot(Enemy *enemy);
+    virtual void shoot(Enemy *enemy, float deltaTime);
 
     /**
      * @brief Upgrade tower
@@ -158,6 +164,12 @@ public:
      * Upgrade tower to level 2
      */
     virtual Tower *upgrade();
+
+    void showTowerRange();
+
+    void hideTowerRange();
+
+    bool enemyInRange(Enemy *enemy);
 };
 
 /**
@@ -169,7 +181,7 @@ public:
 class Tower2 : public Tower
 {
 public:
-    Tower2(sf::Vector2f position, int level, int range);
+    Tower2(sf::Vector2f position, int level, int range, Gun *gun);
 
     /**
      * @brief Upgrade tower
@@ -178,6 +190,8 @@ public:
      * Upgrade tower to level 3
      */
     Tower *upgrade() override;
+
+    void initVariables() override;
 };
 
 /**
@@ -189,7 +203,7 @@ public:
 class Tower3 : public Tower
 {
 public:
-    Tower3(sf::Vector2f position, int level, int range);
+    Tower3(sf::Vector2f position, int level, int range, Gun *gun);
 
     /**
      * @brief Upgrade tower
@@ -198,4 +212,6 @@ public:
      * @attention Tower3 is the highest level tower and cannot be upgraded
      */
     Tower *upgrade() override;
+
+    void initVariables() override;
 };

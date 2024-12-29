@@ -59,8 +59,8 @@ void Game::attack()
     for (size_t i = 0; i < this->towers.size(); i++)
     {
         Enemy *closestEnemy = this->towers[i]->getClosestEnemy(this->enemies);
-
-        this->towers[i]->shoot(closestEnemy);
+        if (closestEnemy != nullptr)
+            this->towers[i]->shoot(closestEnemy, this->deltaTime);
     }
 }
 
@@ -73,7 +73,8 @@ void Game::gameLoop()
         this->placeTower();
         this->sellTower();
         this->update();
-        this->ui->handleInput();
+        this->attack();
+        this->interpretUIInput();
         this->updateUI();
         this->render();
     }
@@ -131,6 +132,8 @@ void Game::initVariables()
     // this->spawnDelay = 1.f - static_cast<float>(rand() % 10) / 10; // random time 1±0.1 s
     this->spawnDelay = 1.f;
     this->nextToSpawn = -1;
+    this->isRoundStarted = false;
+    this->gunType = 1;
 }
 
 void Game::initWorld()
@@ -196,13 +199,25 @@ void Game::placeTower()
     if (this->isCursorOnMap() && this->canPlaceTower && sf::Mouse::isButtonPressed(sf::Mouse::Left) && !this->levelInfo->isTileBlocked(this->currentTile.first, this->currentTile.second))
     {
         this->levelInfo->blockTile(this->currentTile.first, this->currentTile.second);
-
-        Gun *gun = new MachineGun();
+        Gun *gun = nullptr;
+        switch (this->gunType)
+        {
+            case 1:
+                gun = new MachineGun();
+                break;
+            case 2:
+                gun = new HighDamageGun();
+                break;
+            case 3:
+                gun = new SniperRifle();
+                break;
+        }
+        // Gun *gun = new MachineGun();
         sf::Vector2f pos = this->getCursorProjection();
         pos -= sf::Vector2f(0.0f, -15.0f);
         Tower *tower = new Tower(pos, 1, 100, gun);
         tower->setTile(this->currentTile.first, this->currentTile.second);
-
+        tower->showTowerRange();
         std::cout << "Tower placed at " << tower->getTile().first << " " << tower->getTile().second << std::endl;
         std::cout << "Tower placed at " << tower->getPosition().x << " " << tower->getPosition().y << std::endl;
 
@@ -221,7 +236,7 @@ void Game::render()
     screenContent.insert(screenContent.end(), this->towers.begin(), this->towers.end());
 
     sort(screenContent.begin(), screenContent.end(), [](DrawableObject *a, DrawableObject *b)
-         { return a->getPosition().y < b->getPosition().y; });
+        { return a->getPosition().y < b->getPosition().y; });
 
     this->window->render(this->background, screenContent, ui);
 }
@@ -267,24 +282,26 @@ void Game::spawnEnemy()
 void Game::update()
 {
     this->window->update();
-    this->spawnEnemy();
+    if (this->isRoundStarted){
+        this->spawnEnemy();
 
-    for (size_t i = 0; i < this->enemies.size(); i++)
-    {
-        this->enemies[i]->update(this->enemyPath, this->deltaTime);
-        sf::Vector2f diff = this->levelInfo->getLastPathPoint() - this->enemies[i]->getPosition();
-        if (diff.x < 1.f && diff.y < 1.f)
+        for (size_t i = 0; i < this->enemies.size(); i++)
         {
-            this->playerHp -= 10;
-            std::cout << "Player hp: " << this->playerHp << std::endl;
-            delete this->enemies[i];
-            this->enemies.erase(this->enemies.begin() + i);
-        }
-        else if (this->enemies[i]->isDead())
-        {
-            delete this->enemies[i];
-            this->enemies.erase(this->enemies.begin() + i);
-            // money += 10;
+            this->enemies[i]->update(this->enemyPath, this->deltaTime);
+            sf::Vector2f diff = this->levelInfo->getLastPathPoint() - this->enemies[i]->getPosition();
+            if (diff.x < 1.f && diff.y < 1.f)
+            {
+                this->playerHp -= 10;
+                std::cout << "Player hp: " << this->playerHp << std::endl;
+                delete this->enemies[i];
+                this->enemies.erase(this->enemies.begin() + i);
+            }
+            else if (this->enemies[i]->isDead())
+            {
+                delete this->enemies[i];
+                this->enemies.erase(this->enemies.begin() + i);
+                // money += 10;
+            }
         }
     }
 }
@@ -308,6 +325,39 @@ void Game::updateUI()
     this->ui->setRoundText(this->round);
     this->ui->setHealthText(this->playerHp);
     this->ui->setMoneyText(this->money);
+}
+
+void Game::interpretUIInput()
+{
+    ButtonType button = this->ui->handleInput();
+    switch (button)
+    {
+        case ButtonType::MACHINE_GUN:
+            this->gunType = 1;
+            break;
+        case ButtonType::HIGH_DAMAGE_GUN:
+            this->gunType = 2;
+            break;
+        case ButtonType::SNIPER_RIFLE:
+            this->gunType = 3;
+            break;
+        case ButtonType::START_GAME:
+            this->isRoundStarted = true;
+            break;
+        case ButtonType::UPGRADE:
+            for (size_t i = 0; i < this->towers.size(); i++)
+            {
+                Tower *newTower = this->towers[i]->upgrade();
+                if (newTower != towers[i])
+                {
+                    // delete this->towers[i];
+                    this->towers[i] = newTower;
+                }
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 //-----------------------------------

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 
@@ -45,6 +46,14 @@ public:
      * Get gun damage
      */
     int getDamage();
+        
+    /**
+     * @brief Get gun delay
+     * @return Gun delay
+     *
+     * Get gun delay
+     */
+    float getDelay();
 
     //-----------------------------------
     //          Public methods
@@ -56,6 +65,7 @@ public:
      * Fire gun and print message
      */
     virtual void fire();
+
 };
 
 /**

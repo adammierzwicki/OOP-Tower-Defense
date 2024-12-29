@@ -5,6 +5,13 @@
 #include <string>
 #include <iostream>
 #include "windowHandler.h"
+class WindowHandler;
+enum class ButtonType;
+struct Button {
+    sf::RectangleShape rectangle;
+    sf::Text nameText;
+    sf::Text priceText;
+};
 
 class UI {
 private:
@@ -15,7 +22,7 @@ private:
     sf::Text healthDisplay;
     sf::Text moneyDisplay;
 
-    std::vector<sf::Text> buttons;
+    std::vector<Button> buttons;
     int selectedButtonIndex;
 
 public:
@@ -23,10 +30,21 @@ public:
     ~UI();
 
     void render();
-    void handleInput();
+    ButtonType handleInput();
     void setRoundText(int round);
     void setHealthText(int health);
     void setMoneyText(int money);
     int getSelectedButton() const;
     void startUI();
 };
+
+enum class ButtonType {
+    MACHINE_GUN = 1,
+    HIGH_DAMAGE_GUN = 2,
+    SNIPER_RIFLE = 3,
+    START_GAME = 4,
+    UPGRADE = 5,
+    NONE = 0
+};
+
+

@@ -17,6 +17,8 @@ std::string Gun::getType() { return gun_name; }
 
 int Gun::getDamage() { return damage; }
 
+float Gun::getDelay() { return shooting_speed; }
+
 //-----------------------------------
 //          Public methods
 //-----------------------------------
@@ -30,7 +32,7 @@ void Gun::fire()
 //             Machine Gun
 //-----------------------------------
 
-MachineGun::MachineGun() : Gun("Machine Gun", 20, 3.0) {}
+MachineGun::MachineGun() : Gun("machine_gun", 20, 0.5) {}
 
 void MachineGun::fire()
 {
@@ -41,7 +43,7 @@ void MachineGun::fire()
 //           High Damage Gun
 //-----------------------------------
 
-HighDamageGun::HighDamageGun() : Gun("High Damage Gun", 100, 1.0) {}
+HighDamageGun::HighDamageGun() : Gun("high_damage_gun", 100, 1.0) {}
 
 void HighDamageGun::fire()
 {
@@ -52,7 +54,7 @@ void HighDamageGun::fire()
 //           Sniper Rifle
 //-----------------------------------
 
-SniperRifle::SniperRifle() : Gun("Sniper Rifle", 200, 5.0) {}
+SniperRifle::SniperRifle() : Gun("sniper_rifle", 200, 5.0) {}
 
 void SniperRifle::fire()
 {

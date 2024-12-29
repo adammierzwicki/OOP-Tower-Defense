@@ -12,6 +12,7 @@ Tower::Tower()
     this->range = 100;
     this->gun_type = new MachineGun();
     this->initVariables();
+    this->initRange();
 }
 
 Tower::Tower(sf::Vector2f position, int level, int range, Gun *gun)
@@ -21,6 +22,8 @@ Tower::Tower(sf::Vector2f position, int level, int range, Gun *gun)
     this->range = range;
     this->gun_type = gun;
     this->initVariables();
+    this->initRange();
+    this->sprite.setOrigin(44.f, 71.f);
 }
 
 Tower::~Tower()
@@ -34,10 +37,11 @@ Tower::~Tower()
 
 void Tower::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-    target.draw(this->sprite, states);
-    if (this->is_placed)
+    if (this->showRange)
     {
+        target.draw(this->rangeCircle, states);
     }
+    target.draw(this->sprite, states);
 }
 
 //-----------------------------------
@@ -45,11 +49,16 @@ void Tower::draw(sf::RenderTarget &target, sf::RenderStates states) const
 //-----------------------------------
 
 Enemy *Tower::getClosestEnemy(const std::vector<Enemy *> &enemies)
-{
+{  
     Enemy *closest_enemy = nullptr;
-    float min_distance = range + 1;
+    float min_distance = 2 * range; // because circle is scaled by 1.8
     for (auto enemy : enemies)
     {
+        if (!this->enemyInRange(enemy))
+        {
+            continue;
+        }
+        std::cout << "Enemy in range" << std::endl;
         sf::Vector2f enemy_position = enemy->getPosition();
         float distance = sqrt(pow(position.x - enemy_position.x, 2) + pow(position.y - enemy_position.y, 2));
         if (distance < min_distance)
@@ -68,17 +77,36 @@ sf::Vector2f Tower::getPosition() const
 
 void Tower::initVariables()
 {
+    if (this->level != 1){
+        return;
+    }
     this->is_placed = false;
-    std::string path = "textures/tower_" + std::to_string(level) + ".png";
+    this->shootTimer = 0.f;
+    std::string path = "textures/tower_" + std::to_string(level) + "_" + this->gun_type->getType() + ".png";
     if (!this->texture.loadFromFile(path))
     {
         std::cout << "Error: could not load tower image from file: " << path << std::endl;
     }
     this->sprite.setTexture(this->texture);
     // this->sprite.setOrigin(this->sprite.getGlobalBounds().width / 2, this->sprite.getGlobalBounds().height / 2);
-    this->sprite.setOrigin(44.f, 71.f);
+    // this->sprite.setOrigin(44.f, 71.f);
     this->sprite.setPosition(this->position);
+    std::cout << sprite.getGlobalBounds().width << " " << sprite.getGlobalBounds().height << std::endl;
+    std::cout << this->texture.getSize().x << " " << this->texture.getSize().y << std::endl;
 }
+
+void Tower::initRange()
+{
+    this->rangeCircle.setRadius(this->range);
+    this->rangeCircle.setFillColor(sf::Color(255, 255, 255, 50));
+    this->rangeCircle.setOutlineColor(sf::Color::White);
+    this->rangeCircle.setOutlineThickness(2.f);
+    this->rangeCircle.setOrigin(this->range, this->range);
+    this->rangeCircle.setPosition(this->getPosition());
+    this->rangeCircle.setScale(1.8f, 1.f);
+    this->showRange = true;
+}
+
 
 void Tower::placeTower(int x, int y)
 {
@@ -115,56 +143,103 @@ std::pair<int, int> Tower::getTile()
     return this->occupiedTile;
 }
 
-void Tower::shoot(Enemy *enemy)
+void Tower::shoot(Enemy *enemy, float deltaTime)
 {
-    // if (!is_placed)
-    // {
-    //     std::cout << "Tower is not placed and cannot shoot." << std::endl;
-    //     return;
-    // }
-    gun_type->fire();
-    if (enemy == nullptr)
+    float delay = this->gun_type->getDelay();
+    this->shootTimer += deltaTime;
+    if (this->shootTimer >= delay)
     {
-        std::cout << "No enemy in range." << std::endl;
-        return;
+        this->shootTimer -= delay;
+        if (enemy == nullptr)
+        {
+            std::cout << "No enemy in range." << std::endl;
+            return;
+        }
+        gun_type->fire();
+        std::cout << "Shooting to " << enemy->getType() << "located at " << enemy->getPosition().x << " " << enemy->getPosition().y << std::endl;
+        enemy->takeDamage(gun_type->getDamage());
     }
-    std::cout << "Shooting to " << enemy->getType() << "located at " << enemy->getPosition().x << " " << enemy->getPosition().y << std::endl;
-    enemy->takeDamage(gun_type->getDamage());
 }
 
 Tower *Tower::upgrade()
 {
     std::cout << "Upgrading Tower to Tower2" << std::endl;
-    return new Tower2(position, level + 1, range + 10);
+    return new Tower2(position, level + 1, range + 10, gun_type);
+}
+
+void Tower::showTowerRange() { this->showRange = true; }
+
+void Tower::hideTowerRange() { this->showRange = false; }
+
+bool Tower::enemyInRange(Enemy *enemy)
+{
+    sf::Vector2f enemy_pos = enemy->getPosition();
+    sf::Vector2f tower_pos = this->getPosition();
+    sf::FloatRect bds = this->rangeCircle.getGlobalBounds();
+    float a = bds.width / 2;
+    float b = bds.height / 2;
+    if (pow(enemy_pos.x - tower_pos.x, 2) / pow(a, 2) + pow(enemy_pos.y - tower_pos.y, 2) / pow(b, 2) <= 1)
+    {
+        return true;
+    }
+    return false;
 }
 
 //-----------------------------------
 //              Tower2
 //-----------------------------------
 
-Tower2::Tower2(sf::Vector2f position, int level, int range)
+void Tower2::initVariables(){
+    this->is_placed = false;
+    std::string path = "textures/tower_" + std::to_string(level) + "_" + this->gun_type->getType() + ".png";
+    if (!this->texture.loadFromFile(path))
+    {
+        std::cout << "Error: could not load tower image from file: " << path << std::endl;
+    }
+    this->sprite.setTexture(this->texture);
+    this->sprite.setPosition(this->position);
+}
+
+Tower2::Tower2(sf::Vector2f position, int level, int range, Gun *gun)
 {
     this->position = position;
     this->level = level;
     this->range = range;
+    this->gun_type = gun;
+    this->initVariables();
+    this->sprite.setOrigin(44.f, 108.f);
 }
 // : Tower(position, level, range, std::make_unique<HighDamageGun>()) {}
 
 Tower *Tower2::upgrade()
 {
     std::cout << "Upgrading Tower2 to Tower3" << std::endl;
-    return new Tower3(position, level + 1, range + 10);
+    return new Tower3(position, level + 1, range + 10, gun_type);
 }
 
 //-----------------------------------
 //              Tower3
 //-----------------------------------
 
-Tower3::Tower3(sf::Vector2f position, int level, int range)
+void Tower3::initVariables(){
+    this->is_placed = false;
+    std::string path = "textures/tower_" + std::to_string(level) + "_" + this->gun_type->getType() + ".png";
+    if (!this->texture.loadFromFile(path))
+    {
+        std::cout << "Error: could not load tower image from file: " << path << std::endl;
+    }
+    this->sprite.setTexture(this->texture);
+    this->sprite.setPosition(this->position);
+}
+
+Tower3::Tower3(sf::Vector2f position, int level, int range, Gun *gun)
 {
     this->position = position;
     this->level = level;
     this->range = range;
+    this->gun_type = gun;
+    this->initVariables();
+    this->sprite.setOrigin(51.f, 132.f);
 }
 // : Tower(position, level, range, std::make_unique<SniperRifle>()) {}
 

@@ -45,6 +45,9 @@ private:
     float spawnTimer;
     float spawnDelay;
 
+    bool isRoundStarted;
+    int gunType;
+
     //-----------------------------------
     //          Private methods
     //-----------------------------------
@@ -153,6 +156,8 @@ private:
     void updateSelectBox();
 
     void updateUI();
+
+    void interpretUIInput();
     
 public:
     //-----------------------------------

@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "drawableObject.h"
 #include "ui.h"
+class UI;
 
 /**
  * @brief Class for handling window and system events

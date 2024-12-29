@@ -37,7 +37,8 @@ void Animation::update(int row, float deltaTime)
     {
         totalTime -= switchTime;
         currentImage.x++;
-        if (currentImage.x >= imageCount.x)
+        // if (currentImage.x >= imageCount.x)
+        if (currentImage.x >= 8)
         {
             currentImage.x = 0;
         }

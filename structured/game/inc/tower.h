@@ -170,6 +170,12 @@ public:
     void hideTowerRange();
 
     bool enemyInRange(Enemy *enemy);
+
+    int getLevel() const;
+
+    Gun *getGun() const;
+
+    int getRange() const;
 };
 
 /**

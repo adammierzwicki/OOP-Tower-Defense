@@ -34,10 +34,6 @@ Menu::Menu(sf::RenderWindow* window) : window(window), selectedItemIndex(0) {
 
         text.setPosition((screenWidth - textWidth) / 2.0f, startY + i * yDistance);
         text.setOrigin(textBounds.left, textBounds.top + textHeight / 2);
-        std::cout << "Menu item " << i << std::endl;
-        std::cout << text.getPosition().x << " " << text.getPosition().y << std::endl;
-        std::cout << text.getOrigin().x << " " << text.getOrigin().y << std::endl;
-        std::cout << text.getGlobalBounds().width << " " << text.getGlobalBounds().height << std::endl;
         if (i == 0) {
             text.setFillColor(sf::Color::Green);
         } else {

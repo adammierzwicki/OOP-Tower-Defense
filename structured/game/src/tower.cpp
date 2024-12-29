@@ -58,7 +58,6 @@ Enemy *Tower::getClosestEnemy(const std::vector<Enemy *> &enemies)
         {
             continue;
         }
-        std::cout << "Enemy in range" << std::endl;
         sf::Vector2f enemy_position = enemy->getPosition();
         float distance = sqrt(pow(position.x - enemy_position.x, 2) + pow(position.y - enemy_position.y, 2));
         if (distance < min_distance)
@@ -69,6 +68,12 @@ Enemy *Tower::getClosestEnemy(const std::vector<Enemy *> &enemies)
     }
     return closest_enemy;
 }
+
+Gun *Tower::getGun() const { return this->gun_type; }
+
+int Tower::getLevel() const { return this->level; }
+
+int Tower::getRange() const { return this->range; }
 
 sf::Vector2f Tower::getPosition() const 
 {   

@@ -87,21 +87,37 @@ void Enemy::moveAlong(std::vector<sf::Vector2f> &path)
     }
 
     sf::Vector2f direction = path[this->current_path_point] - this->sprite.getPosition();
+    // if (direction.x > 0 && direction.y > 0)
+    // {
+    //     this->animation_row = 0;
+    // }
+    // else if (direction.x > 0 && direction.y < 0)
+    // {
+    //     this->animation_row = 1;
+    // }
+    // else if (direction.x < 0 && direction.y < 0)
+    // {
+    //     this->animation_row = 2;
+    // }
+    // else
+    // {
+    //     this->animation_row = 3;
+    // }
     if (direction.x > 0 && direction.y > 0)
     {
-        this->animation_row = 0;
+        this->animation_row = 5;
     }
     else if (direction.x > 0 && direction.y < 0)
     {
-        this->animation_row = 1;
+        this->animation_row = 3;
     }
     else if (direction.x < 0 && direction.y < 0)
     {
-        this->animation_row = 2;
+        this->animation_row = 1;
     }
     else
     {
-        this->animation_row = 3;
+        this->animation_row = 7;
     }
 
     if (direction.x < 1 && direction.y < 1)
@@ -142,7 +158,7 @@ void Enemy::update(std::vector<sf::Vector2f> &path, float deltaTime)
 //              Peasant
 //-----------------------------------
 
-Peasant::Peasant() : Enemy("Peasant", 100, 0.5f)
+Peasant::Peasant() : Enemy("Peasant", 100, 0.8f)
 {
     this->initSprite();
     std::cout << "Peasant created" << std::endl;
@@ -164,10 +180,13 @@ void Peasant::initSprite()
     {
         throw std::runtime_error("Unable to load peasant texture");
     }
-    this->animation = new Animation(&this->texture, sf::Vector2u(15, 4), 0.09f);
+    // this->animation = new Animation(&this->texture, sf::Vector2u(15, 4), 0.09f);
+    this->animation = new Animation(&this->texture, sf::Vector2u(14, 8), 0.15f);
     this->sprite.setTexture(this->texture);
-    this->sprite.setScale(0.4f, 0.4f);
-    this->sprite.setOrigin(13.7f, 120.f);
+    this->sprite.setScale(1.f, 1.f);
+    this->sprite.setOrigin(60.f, 80.f);
+    // this->sprite.setScale(0.4f, 0.4f);
+    // this->sprite.setOrigin(13.7f, 120.f);
 }
 
 //-----------------------------------

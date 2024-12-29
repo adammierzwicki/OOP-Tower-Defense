@@ -59,9 +59,11 @@ private:
      *  Used in loadLevel function to add enemies to the game by their shortened name
      * (P - Peasant, W - Warrior, H - HeavyKnight)
      */
-    void addEnemy(char enemyType);
+    void addEnemy(char enemyType, sf::Vector2f initialPos);
 
     void attack();
+
+    void autosave();
 
     /**
      * @brief Game loop
@@ -158,6 +160,8 @@ private:
     void updateUI();
 
     void interpretUIInput();
+
+    void loadSave();
     
 public:
     //-----------------------------------
@@ -182,6 +186,8 @@ public:
     //          Public methods
     //-----------------------------------
 
+    friend std::ostream& operator<<(std::ostream& os, const Game& game);
+
     /**
      * @brief Start game loop
      *
@@ -204,4 +210,16 @@ public:
     void updateClock();
 
     float getDeltaTime();
+
+    int getLevel() const;
+
+    int getRound() const;
+
+    int getPlayerHp() const;
+
+    int getMoney() const;
+
+    std::vector<Enemy *> getEnemies() const;
+
+    std::vector<Tower *> getTowers() const;
 };

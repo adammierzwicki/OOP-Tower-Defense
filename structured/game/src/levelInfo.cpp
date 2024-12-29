@@ -45,19 +45,26 @@ void LevelInfo::loadEnemies()
 {
     std::string line;
     std::getline(this->mapFile, line);
-    while (!line.empty())
+    this->roundsCount = std::stoi(line);
+
+    for (int i = 0; i < this->roundsCount; i++)
     {
-        std::string enemyType = line.substr(0, line.find(','));
-        int num = std::stoi(line.substr(line.find(',') + 1));
-
-        this->enemiesMap[enemyType] = num;
-        for (int i = 0; i < num; i++)
-        {
-            this->enemiesVector.push_back(enemyType[0]);
-        }
-
         std::getline(this->mapFile, line);
+        this->enemiesVector.clear();
+        while (!line.empty())
+        {
+            std::string enemyType = line.substr(0, line.find(','));
+            int num = std::stoi(line.substr(line.find(',') + 1));
+            for (int i = 0; i < num; i++)
+            {
+                this->enemiesVector.push_back(enemyType[0]);
+            }
+
+            std::getline(this->mapFile, line);
+        }
+        this->rounds[i] = this->enemiesVector;
     }
+
 }
 
 void LevelInfo::loadLevel()
@@ -138,14 +145,9 @@ sf::Texture LevelInfo::getBackgroundTexture()
     return this->levelBackground;
 }
 
-std::map<std::string, int> LevelInfo::getEnemies()
+std::vector<char> LevelInfo::getEnemiesVector(int round)
 {
-    return this->enemiesMap;
-}
-
-std::vector<char> LevelInfo::getEnemiesVector()
-{
-    return this->enemiesVector;
+    return this->rounds[round];
 }
 
 sf::Vector2f LevelInfo::getLastPathPoint()
@@ -195,21 +197,6 @@ bool LevelInfo::isTileBlocked(int x, int y)
 void LevelInfo::blockTile(int x, int y)
 {
     this->map[y][x] = true;
-}
-
-void LevelInfo::printInfo()
-{
-    std::cout << "Level " << this->level << " info:" << std::endl;
-    std::cout << "Path points:" << std::endl;
-    for (auto point : this->path)
-    {
-        std::cout << point.x << " " << point.y << std::endl;
-    }
-    std::cout << "Enemies:" << std::endl;
-    for (auto enemy : this->enemiesMap)
-    {
-        std::cout << enemy.first << " " << enemy.second << std::endl;
-    }
 }
 
 void LevelInfo::unblockTile(int x, int y)

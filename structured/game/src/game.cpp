@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <fstream>
+#include <ctime>
+#include <sstream>
 
 #include "../inc/drawableObject.h"
 #include "../inc/game.h"
@@ -35,7 +37,7 @@ Game::~Game()
 //          Private methods
 //-----------------------------------
 
-void Game::addEnemy(char enemyType)
+void Game::addEnemy(char enemyType, sf::Vector2f initialPos = {-1.f, -1.f})
 {
     Enemy *enemy;
     switch (enemyType)
@@ -50,7 +52,14 @@ void Game::addEnemy(char enemyType)
         enemy = new HeavyKnight();
         break;
     }
-    enemy->setStartPosition(this->enemyPath[0]);
+    if (initialPos != sf::Vector2f(-1.f, -1.f))
+    {
+        enemy->setStartPosition(initialPos);
+    }
+    else
+    {
+        enemy->setStartPosition(this->enemyPath[0]);
+    }
     this->enemies.push_back(enemy);
 }
 
@@ -62,6 +71,14 @@ void Game::attack()
         if (closestEnemy != nullptr)
             this->towers[i]->shoot(closestEnemy, this->deltaTime);
     }
+}
+
+void Game::autosave()
+{
+    std::ofstream file;
+    file.open("autosave.txt");
+    file << *this;
+    file.close();
 }
 
 void Game::gameLoop()
@@ -271,9 +288,9 @@ void Game::spawnEnemy()
         this->spawnTimer -= this->spawnDelay;
         this->nextToSpawn++;
 
-        if (this->nextToSpawn < this->levelInfo->getEnemiesVector().size())
+        if (this->nextToSpawn < this->levelInfo->getEnemiesVector(this->round).size())
         {
-            this->addEnemy(this->levelInfo->getEnemiesVector()[this->nextToSpawn]);
+            this->addEnemy(this->levelInfo->getEnemiesVector(this->round)[this->nextToSpawn]);
             this->spawnDelay = 0.8f + (static_cast<float>(rand() % 10)) / 10;
         }
     }
@@ -360,9 +377,101 @@ void Game::interpretUIInput()
     }
 }
 
+void Game::loadSave()
+{
+    std::ifstream file("autosave.txt");
+    std::string line;
+    std::getline(file, line); // skip title
+    std::getline(file, line); // skip blank
+    std::getline(file, line);
+    this->level = std::stoi(line.substr(7));
+    std::getline(file, line);
+    this->round = std::stoi(line.substr(7));
+    std::getline(file, line);
+    this->playerHp = std::stoi(line.substr(11));
+    std::getline(file, line);
+    this->money = std::stoi(line.substr(7));
+    std::getline(file, line);
+    int enemiesCount = std::stoi(line.substr(9));
+    for (int i = 0; i < enemiesCount; i++)
+    {
+        std::getline(file, line);
+        std::istringstream iss(line);
+        std::string typeStr, xStr, yStr;
+        iss >> typeStr >> xStr >> yStr;
+        char type = typeStr[0];
+        int x = std::stoi(xStr);
+        int y = std::stoi(yStr);
+        this->addEnemy(type, sf::Vector2f(x, y));
+    }
+    std::getline(file, line);
+    int towersCount = std::stoi(line.substr(8));
+    for (int i = 0; i < towersCount; i++)
+    {
+        std::getline(file, line);
+        std::istringstream iss(line);
+        std::string levelStr, gunStr, rangeStr, xStr, yStr;
+        iss >> levelStr >> gunStr >> rangeStr >> xStr >> yStr;
+        int level = std::stoi(levelStr);
+        int range = std::stoi(rangeStr);
+        int x = std::stoi(xStr);
+        int y = std::stoi(yStr);
+        Gun *gun = nullptr;
+        switch (gunStr[0])
+        {
+        case 'm':
+            gun = new MachineGun();
+            break;
+        case 'h':
+            gun = new HighDamageGun();
+            break;
+        case 's':
+            gun = new SniperRifle();
+            break;
+        }
+        Tower *tower = new Tower(sf::Vector2f(x, y), level, range, gun);
+        this->towers.push_back(tower);
+    }
+    file.close();
+}
+
 //-----------------------------------
 //          Public methods
 //-----------------------------------
+
+std::ostream& operator<<(std::ostream& os, const Game& game)
+{   
+    time_t now;
+    time(&now);   
+    os << "Autosave from " << ctime(&now) << "\n";
+    os << "Level: " << game.getLevel() << "\n";
+    os << "Round: " << game.getRound() << "\n";
+    os << "Player HP: " << game.getPlayerHp() << "\n";
+    os << "Money: " << game.getMoney() << "\n";
+    os << "Enemies: " << game.getEnemies().size() << "\n";
+    for (size_t i = 0; i < game.getEnemies().size(); i++)
+    {
+        os << game.getEnemies()[i]->getType() << " " << game.getEnemies()[i]->getPosition().x << " " << game.getEnemies()[i]->getPosition().y << "\n";
+    }
+    os << "Towers: " << game.getTowers().size() << "\n";
+    for (size_t i = 0; i < game.getTowers().size(); i++)
+    {
+        os << game.getTowers()[i]->getLevel() << " " << game.getTowers()[i]->getGun()->getType() << " " << game.getTowers()[i]->getRange() << " " << game.getTowers()[i]->getPosition().x << " " << game.getTowers()[i]->getPosition().y << "\n";
+    }
+    return os;
+}
+
+int Game::getLevel() const { return this->level; }
+
+int Game::getRound() const { return this->round; }
+
+int Game::getPlayerHp() const { return this->playerHp; }
+
+int Game::getMoney() const { return this->money; }
+
+std::vector<Enemy *> Game::getEnemies() const { return this->enemies; }
+
+std::vector<Tower *> Game::getTowers() const { return this->towers; }
 
 void Game::startGame()
 {
@@ -371,11 +480,25 @@ void Game::startGame()
     {
         return;
     }
-
+    // std::ifstream infile("autosave.txt");
+    // if (infile.good())
+    // {
+    //     std::cout << "Autosave file exists. Loading game state..." << std::endl;
+    //     this->loadSave();
+    //     this->loadLevel(this->level);
+    //     this->isRoundStarted = true;
+    // }
+    // else
+    // {
+    //     std::cout << "No autosave file found. Starting a new game..." << std::endl;
+    //     this->loadLevel(1);
+    // }
     this->loadLevel(1);
     this->initWorld();
 
+
     this->gameLoop();
+    this->autosave();
 }
 
 void Game::startingScreen()

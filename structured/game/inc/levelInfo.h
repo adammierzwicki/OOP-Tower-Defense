@@ -20,7 +20,7 @@ private:
     int level;
     std::string mapFilePath;
     std::fstream mapFile;
-    std::map<std::string, int> enemiesMap;
+    std::map<int, std::vector<char>> rounds;
     std::vector<char> enemiesVector;
     std::vector<sf::Vector2f> path;
     int pathLength;
@@ -29,6 +29,7 @@ private:
     sf::Vector2f mapTileSize;
     sf::Vector2f mapCorners[4];
     sf::Texture levelBackground;
+    int roundsCount;
 
     //-----------------------------------
     //          Private methods
@@ -109,20 +110,12 @@ public:
     sf::Texture getBackgroundTexture();
 
     /**
-     * @brief Get enemies
-     * @return Enemies
-     *
-     * Get enemies in map format
-     */
-    std::map<std::string, int> getEnemies(); //! unnecessary
-
-    /**
      * @brief Get enemies vector
      * @return Enemies vector
      *
      * Get enemies in vector format
      */
-    std::vector<char> getEnemiesVector();
+    std::vector<char> getEnemiesVector(int round);
 
     /**
      * @brief Get last point of path
@@ -194,13 +187,6 @@ public:
      * Mark tile as blocked in map
      */
     void blockTile(int x, int y);
-
-    /**
-     * @brief Print debug level information
-     *
-     * Prints info about level loaded from map file
-     */
-    void printInfo();
 
     /**
      * @brief Remove tower from map

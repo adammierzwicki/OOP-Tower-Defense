@@ -58,8 +58,9 @@ int Enemy::getSpeed() const { return this->speed; }
 
 std::string Enemy::getType() const { return this->enemy_type; }
 
-sf::Vector2f Enemy::getPosition() const {
-    return this->sprite.getPosition(); }
+sf::Vector2f Enemy::getPosition() const { return this->sprite.getPosition(); }
+
+int Enemy::getValue() const { return this->value; }
 
 //-----------------------------------
 //             Modifiers
@@ -161,6 +162,7 @@ void Enemy::update(std::vector<sf::Vector2f> &path, float deltaTime)
 Peasant::Peasant() : Enemy("Peasant", 100, 0.8f)
 {
     this->initSprite();
+    this->value = 20;
     std::cout << "Peasant created" << std::endl;
 }
 
@@ -196,6 +198,7 @@ void Peasant::initSprite()
 Warrior::Warrior() : Enemy("Warrior", 200, 3.f)
 {
     this->initSprite();
+    this->value = 100;
     std::cout << "Warrior created" << std::endl;
 }
 
@@ -230,6 +233,7 @@ void Warrior::initSprite()
 HeavyKnight::HeavyKnight() : Enemy("HeavyKnight", 600, 1.f)
 {
     this->initSprite();
+    this->value = 250;
     std::cout << "HeavyKnight created" << std::endl;
 }
 

@@ -38,7 +38,6 @@ private:
      */
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states = sf::RenderStates::Default) const;
     
-    void initRange();
     
 protected:
     //-----------------------------------
@@ -47,16 +46,18 @@ protected:
 
     sf::Vector2f position;
     std::pair<int, int> occupiedTile;
-    bool is_placed;
     int level;
     int range;
-    Gun *gun_type;
+    Gun *gun;
     sf::Texture texture;
     sf::Sprite sprite;
 
     float shootTimer;
     sf::CircleShape rangeCircle;
     bool showRange;
+
+
+    void initRange();
 
 public:
     //-----------------------------------
@@ -114,7 +115,9 @@ public:
      *
      * Load tower texture and set sprite position
      */
-    virtual void initVariables();
+    void initVariables();
+
+    virtual void initTexture();
 
     /**
      * @brief Place tower on map
@@ -123,7 +126,7 @@ public:
      *
      * Place tower on map at given coordinates
      */
-    void placeTower(int x, int y);
+    void placeTower(std::pair<int, int> tilePosition);
 
     /**
      * @brief Remove tower from map
@@ -197,7 +200,7 @@ public:
      */
     Tower *upgrade() override;
 
-    void initVariables() override;
+    void initTexture() override;
 };
 
 /**
@@ -219,5 +222,5 @@ public:
      */
     Tower *upgrade() override;
 
-    void initVariables() override;
+    void initTexture() override;
 };

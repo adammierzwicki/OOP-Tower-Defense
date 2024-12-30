@@ -65,6 +65,7 @@ protected:
     sf::Sprite sprite;
     Animation *animation;
     int animation_row;
+    int value;
 
 public:
     //-----------------------------------
@@ -126,6 +127,8 @@ public:
      * @return Enemy type
      */
     std::string getType() const;
+
+    int getValue() const;
 
     //-----------------------------------
     //             Modifiers

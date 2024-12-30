@@ -153,6 +153,7 @@ void Game::initVariables()
     this->nextToSpawn = -1;
     this->isRoundStarted = false;
     this->gunType = 1;
+    this->newTowerChosen = false;
 }
 
 void Game::initWorld()
@@ -208,30 +209,27 @@ void Game::loadLevel(int level)
 
 void Game::placeTower()
 {
-    if (this->isCursorOnMap() && this->canPlaceTower && sf::Mouse::isButtonPressed(sf::Mouse::Left) && !this->levelInfo->isTileBlocked(this->currentTile.first, this->currentTile.second))
+    if (this->isCursorOnMap() && this->canPlaceTower && this->newTowerChosen && sf::Mouse::isButtonPressed(sf::Mouse::Left) && !this->levelInfo->isTileBlocked(this->currentTile.first, this->currentTile.second))
     {
         this->levelInfo->blockTile(this->currentTile.first, this->currentTile.second);
+        this->newTowerChosen = false;
+
         Gun *gun = nullptr;
         switch (this->gunType)
         {
-            case 1:
-                gun = new MachineGun();
-                break;
-            case 2:
-                gun = new HighDamageGun();
-                break;
-            case 3:
-                gun = new SniperRifle();
-                break;
+        case 1:
+            gun = new MachineGun();
+            break;
+        case 2:
+            gun = new HighDamageGun();
+            break;
+        case 3:
+            gun = new SniperRifle();
+            break;
         }
-        // Gun *gun = new MachineGun();
         sf::Vector2f pos = this->getCursorProjection();
-        pos -= sf::Vector2f(0.0f, -15.0f);
         Tower *tower = new Tower(pos, 1, 100, gun);
-        tower->setTile(this->currentTile.first, this->currentTile.second);
-        tower->showTowerRange();
-        std::cout << "Tower placed at " << tower->getTile().first << " " << tower->getTile().second << std::endl;
-        std::cout << "Tower placed at " << tower->getPosition().x << " " << tower->getPosition().y << std::endl;
+        tower->placeTower(this->currentTile);
 
         this->towers.push_back(tower);
     }
@@ -240,7 +238,7 @@ void Game::placeTower()
 void Game::render()
 {
     std::vector<DrawableObject *> screenContent;
-    if (cursorOnMap)
+    if (cursorOnMap && newTowerChosen)
     {
         screenContent.push_back(selectBox);
     }
@@ -248,7 +246,7 @@ void Game::render()
     screenContent.insert(screenContent.end(), this->towers.begin(), this->towers.end());
 
     sort(screenContent.begin(), screenContent.end(), [](DrawableObject *a, DrawableObject *b)
-        { return a->getPosition().y < b->getPosition().y; });
+         { return a->getPosition().y < b->getPosition().y; });
 
     this->window->render(this->background, screenContent, ui);
 }
@@ -267,6 +265,19 @@ void Game::sellTower()
                 std::cout << "Tower removed from " << towers[i]->getTile().first << " " << towers[i]->getTile().second << std::endl;
                 std::cout << "Tower removed from " << this->towers[i]->getPosition().x << " " << this->towers[i]->getPosition().y << std::endl;
                 this->levelInfo->unblockTile(this->currentTile.first, this->currentTile.second);
+                char gunName = this->towers[i]->getGun()->getType()[0];
+                switch (gunName)
+                {
+                case 'm':
+                    this->money += 20;
+                    break;
+                case 'h':
+                    this->money += 100;
+                    break;
+                case 's':
+                    this->money += 150;
+                    break;
+                }
                 delete this->towers[i];
                 this->towers.erase(this->towers.begin() + i);
                 break;
@@ -282,10 +293,9 @@ void Game::spawnEnemy()
     {
         this->spawnTimer -= this->spawnDelay;
         this->nextToSpawn++;
-
-        if (this->nextToSpawn < static_cast<int>(this->levelInfo->getEnemiesVector(this->round).size()))
+        if (this->levelInfo->hasNextEnemy(this->round))
         {
-            this->addEnemy(this->levelInfo->getEnemiesVector(this->round)[this->nextToSpawn]);
+            this->addEnemy(this->levelInfo->getNextEnemy(this->round));
             this->spawnDelay = 0.8f + (static_cast<float>(rand() % 10)) / 10;
         }
     }
@@ -294,7 +304,8 @@ void Game::spawnEnemy()
 void Game::update()
 {
     this->window->update();
-    if (this->isRoundStarted){
+    if (this->isRoundStarted)
+    {
         this->spawnEnemy();
 
         for (size_t i = 0; i < this->enemies.size(); i++)
@@ -310,9 +321,9 @@ void Game::update()
             }
             else if (this->enemies[i]->isDead())
             {
+                money += this->enemies[i]->getValue();
                 delete this->enemies[i];
                 this->enemies.erase(this->enemies.begin() + i);
-                // money += 10;
             }
         }
     }
@@ -344,31 +355,52 @@ void Game::interpretUIInput()
     ButtonType button = this->ui->handleInput();
     switch (button)
     {
-        case ButtonType::MACHINE_GUN:
-            this->gunType = 1;
+    case ButtonType::MACHINE_GUN:
+        if (this->money < 40)
+        {
+            std::cout << "Not enough money" << std::endl;
             break;
-        case ButtonType::HIGH_DAMAGE_GUN:
-            this->gunType = 2;
+        }
+        this->gunType = 1;
+        this->money -= 40;
+        this->newTowerChosen = true;
+        break;
+    case ButtonType::HIGH_DAMAGE_GUN:
+        if (this->money < 200)
+        {
+            std::cout << "Not enough money" << std::endl;
             break;
-        case ButtonType::SNIPER_RIFLE:
-            this->gunType = 3;
+        }
+        this->gunType = 2;
+        this->money -= 200;
+        this->newTowerChosen = true;
+        break;
+    case ButtonType::SNIPER_RIFLE:
+        if (this->money < 300)
+        {
+            std::cout << "Not enough money" << std::endl;
             break;
-        case ButtonType::START_GAME:
-            this->isRoundStarted = true;
-            break;
-        case ButtonType::UPGRADE:
-            for (size_t i = 0; i < this->towers.size(); i++)
+        }
+        this->gunType = 3;
+        this->money -= 300;
+        this->newTowerChosen = true;
+        break;
+    case ButtonType::START_GAME:
+        this->isRoundStarted = true;
+        break;
+    case ButtonType::UPGRADE:
+        for (size_t i = 0; i < this->towers.size(); i++)
+        {
+            Tower *newTower = this->towers[i]->upgrade();
+            if (newTower != towers[i])
             {
-                Tower *newTower = this->towers[i]->upgrade();
-                if (newTower != towers[i])
-                {
-                    // delete this->towers[i];
-                    this->towers[i] = newTower;
-                }
+                delete this->towers[i];
+                this->towers[i] = newTower;
             }
-            break;
-        default:
-            break;
+        }
+        break;
+    default:
+        break;
     }
 }
 
@@ -432,21 +464,21 @@ void Game::loadSave()
 
 void Game::isRoundOver()
 {
-    if (this->playerHp <=0){
-            this->endGame = true;
-            this->window->getWindow()->close();
-            std::cout << "You lost!" << std::endl;
-            return;
+    if (this->playerHp <= 0)
+    {
+        this->endGame = true;
+        this->window->getWindow()->close();
+        std::cout << "You lost!" << std::endl;
+        return;
     }
     if (this->round == this->levelInfo->getRoundsCount())
-        {
-            this->endGame = true;
-            this->window->getWindow()->close();
-            std::cout << "You won!" << std::endl;
-            return;
-        }
-    // std::cout << "Enemies: " << this->enemies.size() << " Next to spawn: " << this->nextToSpawn << " " << this->levelInfo->getEnemiesVector(this->round).size() << std::endl;
-    if (this->enemies.size() == 0 && this->nextToSpawn > static_cast<int>(this->levelInfo->getEnemiesVector(this->round).size()) && this->isRoundStarted)
+    {
+        this->endGame = true;
+        this->window->getWindow()->close();
+        std::cout << "You won!" << std::endl;
+        return;
+    }
+    if (this->enemies.size() == 0 && !this->levelInfo->hasNextEnemy(this->round) && this->isRoundStarted)
     {
         std::cout << "Round ended" << std::endl;
         this->round++;
@@ -458,10 +490,10 @@ void Game::isRoundOver()
 //          Public methods
 //-----------------------------------
 
-std::ostream& operator<<(std::ostream& os, const Game& game)
-{   
+std::ostream &operator<<(std::ostream &os, const Game &game)
+{
     time_t now;
-    time(&now);   
+    time(&now);
     os << "Autosave from " << ctime(&now) << "\n";
     os << "Level: " << game.getLevel() << "\n";
     os << "Round: " << game.getRound() << "\n";
@@ -514,7 +546,6 @@ void Game::startGame()
     // }
     this->loadLevel(1);
     this->initWorld();
-
 
     this->gameLoop();
     this->autosave();

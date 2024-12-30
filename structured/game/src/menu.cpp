@@ -20,7 +20,14 @@ Menu::Menu(sf::RenderWindow* window) : window(window), selectedItemIndex(0) {
     const float yDistance = 150.0f;
 
     float totalMenuHeight = items.size() * yDistance;
-    float startY = (screenHeight - totalMenuHeight) / 2.0f;
+    float startY = (screenHeight - totalMenuHeight) / 2.0f + 100.f;
+
+    this->title.setFont(font);
+    this->title.setString("Tower Defense");
+    this->title.setCharacterSize(200);
+    this->title.setFillColor(sf::Color::Yellow);
+    this->title.setStyle(sf::Text::Bold);
+    this->title.setPosition((screenWidth - title.getLocalBounds().width) / 2.0f, 50.f);
 
     for (size_t i = 0; i < items.size(); ++i) {
         sf::Text text;
@@ -78,6 +85,7 @@ int Menu::getSelectedItemIndex() const {
 void Menu::render() {
     window->clear();
     window->draw(backgroundSprite);
+    window->draw(title);
     for (const auto& item : menuItems) {
         window->draw(item);
     }

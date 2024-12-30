@@ -34,6 +34,7 @@ private:
     SelectBox *selectBox;
     bool cursorOnMap;
     bool canPlaceTower;
+    bool newTowerChosen;
 
     std::pair<int, int> currentTile;
 

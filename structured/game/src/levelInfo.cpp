@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../inc/levelInfo.h"
+#include "../inc/customQueue.h"
 
 //-----------------------------------
 //     Constructor and destructor
@@ -47,24 +48,21 @@ void LevelInfo::loadEnemies()
     std::getline(this->mapFile, line);
     this->roundsCount = std::stoi(line);
 
-    for (int i = 0; i < this->roundsCount; i++)
+    for (int round = 0; round < this->roundsCount; round++)
     {
         std::getline(this->mapFile, line);
-        this->enemiesVector.clear();
+        this->rounds[round] = Queue<char>();
         while (!line.empty())
         {
             std::string enemyType = line.substr(0, line.find(','));
             int num = std::stoi(line.substr(line.find(',') + 1));
             for (int i = 0; i < num; i++)
             {
-                this->enemiesVector.push_back(enemyType[0]);
+                this->rounds[round].push(enemyType[0]);
             }
-
             std::getline(this->mapFile, line);
         }
-        this->rounds[i] = this->enemiesVector;
     }
-
 }
 
 void LevelInfo::loadLevel()
@@ -145,9 +143,9 @@ sf::Texture LevelInfo::getBackgroundTexture()
     return this->levelBackground;
 }
 
-std::vector<char> LevelInfo::getEnemiesVector(int round)
+char LevelInfo::getNextEnemy(int round)
 {
-    return this->rounds[round];
+    return this->rounds[round].pop();
 }
 
 sf::Vector2f LevelInfo::getLastPathPoint()
@@ -207,4 +205,9 @@ void LevelInfo::blockTile(int x, int y)
 void LevelInfo::unblockTile(int x, int y)
 {
     this->map[y][x] = false;
+}
+
+bool LevelInfo::hasNextEnemy(int round)
+{
+    return !this->rounds[round].empty();
 }

@@ -1,9 +1,10 @@
 #pragma once
 #include <fstream>
 #include <map>
-#include <string>
+// #include <string>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "customQueue.h"
 
 /**
  * @brief Class for loading and storing level information
@@ -20,8 +21,10 @@ private:
     int level;
     std::string mapFilePath;
     std::fstream mapFile;
-    std::map<int, std::vector<char>> rounds;
-    std::vector<char> enemiesVector;
+    // std::map<int, std::vector<char>> rounds;
+    // std::vector<char> enemiesVector;
+    std::map<int, Queue<char>> rounds;
+    Queue<char> enemiesVector;
     std::vector<sf::Vector2f> path;
     int pathLength;
     std::pair<int, int> mapSize;
@@ -115,7 +118,7 @@ public:
      *
      * Get enemies in vector format
      */
-    std::vector<char> getEnemiesVector(int round);
+    char getNextEnemy(int round);
 
     /**
      * @brief Get last point of path
@@ -198,4 +201,6 @@ public:
      * Mark tile as unblocked in map
      */
     void unblockTile(int x, int y);
+
+    bool hasNextEnemy(int round);
 };

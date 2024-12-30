@@ -25,6 +25,8 @@ public:
 
     Gun(std::string gun_name, int damage, float shooting_speed);
 
+    Gun(Gun const &gun);
+
     virtual ~Gun();
 
     //-----------------------------------
@@ -46,7 +48,7 @@ public:
      * Get gun damage
      */
     int getDamage();
-        
+
     /**
      * @brief Get gun delay
      * @return Gun delay
@@ -65,7 +67,6 @@ public:
      * Fire gun and print message
      */
     virtual void fire();
-
 };
 
 /**

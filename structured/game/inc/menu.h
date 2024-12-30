@@ -10,6 +10,7 @@ private:
     std::vector<sf::Text> menuItems;
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
+    sf::Text title;
 
 public:
     Menu(sf::RenderWindow *window);

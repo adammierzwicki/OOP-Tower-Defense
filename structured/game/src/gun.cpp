@@ -7,13 +7,20 @@
 Gun::Gun(std::string gun_name, int damage, float shooting_speed)
     : gun_name(gun_name), damage(damage), shooting_speed(shooting_speed) {}
 
+Gun::Gun(Gun const &gun)
+    : gun_name(gun.gun_name), damage(gun.damage), shooting_speed(gun.shooting_speed) {}
+
 Gun::~Gun() {}
+
 
 //-----------------------------------
 //             Accessors
 //-----------------------------------
 
-std::string Gun::getType() { return gun_name; }
+std::string Gun::getType()
+{
+    return gun_name;
+}
 
 int Gun::getDamage() { return damage; }
 

@@ -35,3 +35,5 @@ set(SOURCES
 add_executable(game ${HEADERS} ${SOURCES})
 add_library(game_lib STATIC ${HEADERS} ${SOURCES})
 set_target_properties(game PROPERTIES ENABLE_EXPORTS ON)
+
+target_link_libraries(game PRIVATE SFML::Graphics)

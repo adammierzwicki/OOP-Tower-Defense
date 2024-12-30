@@ -12,8 +12,6 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-
-
 add_subdirectory(game)
 add_subdirectory(ut)
 add_subdirectory(external)

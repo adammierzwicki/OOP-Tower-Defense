@@ -37,8 +37,9 @@ Queue<T>::~Queue()
 {
     while (this->head != nullptr)
     {
+        Node *temp = this->head;
         this->head = this->head->next;
-        delete this->head;
+        delete temp;
     }
 }
 

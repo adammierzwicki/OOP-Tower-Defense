@@ -1,10 +1,10 @@
 all: compile link
 
 compile:
-	g++ -c window.cpp
+	cd game/out && g++ -c ../src/*.cpp -Wall
 
 link:
-	g++ window.o -o sfml-app.exe -lsfml-graphics -lsfml-window -lsfml-system
+	g++ game/out/*.o -o tower-defense.exe -Wall -lsfml-graphics -lsfml-window -lsfml-system
 
 clear:
-	rm *.o sfml-app.exe
+	rm game/out/*.o tower-defense.exe

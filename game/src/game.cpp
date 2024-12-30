@@ -5,7 +5,8 @@
 
 #include "../inc/drawableObject.h"
 #include "../inc/game.h"
-// #include "../inc/ui.h"
+#include "../inc/prices.h"
+#include "../inc/endGame.h"
 
 //-----------------------------------
 //     Constructor and destructor
@@ -96,6 +97,9 @@ void Game::gameLoop()
         this->updateUI();
         this->render();
         this->isRoundOver();
+        if (this->endGame){
+            break;
+        }
     }
 }
 
@@ -269,13 +273,13 @@ void Game::sellTower()
                 switch (gunName)
                 {
                 case 'm':
-                    this->money += 20;
+                    this->money += Prices::machineGunTower / 2 ;
                     break;
                 case 'h':
-                    this->money += 100;
+                    this->money += Prices::highDamageTower / 2;
                     break;
                 case 's':
-                    this->money += 150;
+                    this->money += Prices::sniperTower / 2;
                     break;
                 }
                 delete this->towers[i];
@@ -356,39 +360,44 @@ void Game::interpretUIInput()
     switch (button)
     {
     case ButtonType::MACHINE_GUN:
-        if (this->money < 40)
+        if (this->money < Prices::machineGunTower)
         {
             std::cout << "Not enough money" << std::endl;
             break;
         }
         this->gunType = 1;
-        this->money -= 40;
+        this->money -= Prices::machineGunTower;
         this->newTowerChosen = true;
         break;
     case ButtonType::HIGH_DAMAGE_GUN:
-        if (this->money < 200)
+        if (this->money < Prices::highDamageTower)
         {
             std::cout << "Not enough money" << std::endl;
             break;
         }
         this->gunType = 2;
-        this->money -= 200;
+        this->money -= Prices::highDamageTower;
         this->newTowerChosen = true;
         break;
     case ButtonType::SNIPER_RIFLE:
-        if (this->money < 300)
+        if (this->money < Prices::sniperTower)
         {
             std::cout << "Not enough money" << std::endl;
             break;
         }
         this->gunType = 3;
-        this->money -= 300;
+        this->money -= Prices::sniperTower;
         this->newTowerChosen = true;
         break;
     case ButtonType::START_GAME:
         this->isRoundStarted = true;
         break;
     case ButtonType::UPGRADE:
+        if (this->money < Prices::upgrade)
+        {
+            std::cout << "Not enough money" << std::endl;
+            break;
+        }
         for (size_t i = 0; i < this->towers.size(); i++)
         {
             Tower *newTower = this->towers[i]->upgrade();
@@ -398,6 +407,7 @@ void Game::interpretUIInput()
                 this->towers[i] = newTower;
             }
         }
+        this->money -= Prices::upgrade;
         break;
     default:
         break;
@@ -467,16 +477,10 @@ void Game::isRoundOver()
     if (this->playerHp <= 0)
     {
         this->endGame = true;
-        this->window->getWindow()->close();
-        std::cout << "You lost!" << std::endl;
-        return;
     }
     if (this->round == this->levelInfo->getRoundsCount())
     {
         this->endGame = true;
-        this->window->getWindow()->close();
-        std::cout << "You won!" << std::endl;
-        return;
     }
     if (this->enemies.size() == 0 && !this->levelInfo->hasNextEnemy(this->round) && this->isRoundStarted)
     {
@@ -484,6 +488,31 @@ void Game::isRoundOver()
         this->round++;
         this->isRoundStarted = false;
         this->nextToSpawn = -1;
+    }
+}
+
+void Game::endingScreen(){
+    if (this->playerHp <= 0)
+    {
+        EndGame endGame(this->window->getWindow(), "You lost!");
+        bool isRunning = true;
+        while (isRunning && this->window->running())
+        {
+            endGame.handleInput(isRunning);
+            endGame.render();
+        }
+        return;
+    }
+    else if (this->round == this->levelInfo->getRoundsCount())
+    {
+        EndGame endGame(this->window->getWindow(), "You won!");
+        bool isRunning = true;
+        while (isRunning && this->window->running())
+        {
+            endGame.handleInput(isRunning);
+            endGame.render();
+        }
+        return;
     }
 }
 //-----------------------------------
@@ -548,6 +577,7 @@ void Game::startGame()
     this->initWorld();
 
     this->gameLoop();
+    this->endingScreen();
     this->autosave();
 }
 

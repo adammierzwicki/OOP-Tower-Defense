@@ -6,11 +6,13 @@ set(HEADERS
     inc/animation.h
     inc/customQueue.h
     inc/drawableObject.h
+    inc/endGame.h
     inc/enemy.h
     inc/game.h
     inc/gun.h
     inc/levelInfo.h
     inc/menu.h
+    inc/prices.h
     inc/selectBox.h
     inc/tower.h
     inc/ui.h
@@ -20,11 +22,13 @@ set(HEADERS
 set(SOURCES
     src/animation.cpp
     src/drawableObject.cpp
+    src/endGame.cpp
     src/enemy.cpp
     src/game.cpp
     src/gun.cpp
     src/levelInfo.cpp
     src/menu.cpp
+    src/prices.cpp
     src/selectBox.cpp
     src/tower.cpp
     src/ui.cpp

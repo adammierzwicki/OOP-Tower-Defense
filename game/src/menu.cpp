@@ -8,7 +8,7 @@ Menu::Menu(sf::RenderWindow* window) : window(window), selectedItemIndex(0) {
     if (!font.loadFromFile("fonts/BoldKei-nRAWP.ttf")) {
         throw std::runtime_error("Failed to load font");
     }
-    std::vector<std::string> items = {"Start Game", "Settings", "Exit"};
+    std::vector<std::string> items = {"Start Game", "Exit"};
 
     if (!backgroundTexture.loadFromFile("textures/starting_background.png")) {
         throw std::runtime_error("Failed to load menu background texture");
@@ -62,22 +62,6 @@ int Menu::startMenu() {
     return selectedItemIndex;
 }
 
-void Menu::navigateUp() {
-    if (selectedItemIndex > 0) {
-        menuItems[selectedItemIndex].setFillColor(sf::Color::White);
-        --selectedItemIndex;
-        menuItems[selectedItemIndex].setFillColor(sf::Color::Green);
-    }
-}
-
-void Menu::navigateDown() {
-    if (selectedItemIndex < static_cast<int>(menuItems.size()) - 1) {
-        menuItems[selectedItemIndex].setFillColor(sf::Color::White);
-        ++selectedItemIndex;
-        menuItems[selectedItemIndex].setFillColor(sf::Color::Green);
-    }
-}
-
 int Menu::getSelectedItemIndex() const {
     return selectedItemIndex;
 }
@@ -115,9 +99,6 @@ void Menu::handleInput(bool &isRunning) {
                     if (selectedItemIndex == 0) {
                         isRunning = false;
                     } else if (selectedItemIndex == 1) {
-                        //TODO: add settings handling
-                        std::cout << "Settings opened. Not implemented" << std::endl;
-                    } else if (selectedItemIndex == 2) {
                         window->close();
                     }
                 }

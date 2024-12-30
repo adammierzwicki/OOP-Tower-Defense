@@ -165,6 +165,8 @@ private:
     void loadSave();
 
     void isRoundOver();
+
+    void endingScreen();
     
 public:
     //-----------------------------------

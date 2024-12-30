@@ -35,7 +35,6 @@ public:
     void setHealthText(int health);
     void setMoneyText(int money);
     int getSelectedButton() const;
-    void startUI();
 };
 
 enum class ButtonType {

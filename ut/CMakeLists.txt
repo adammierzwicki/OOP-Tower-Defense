@@ -5,6 +5,7 @@ include(CTest)
 if(BUILD_TESTING)
    set(HEADERS
       inc/queueFixture.h
+      ../game/inc/customQueue.h
       )
    set(SOURCES
       src/queueTests.cpp

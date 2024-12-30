@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../inc/queueFixture.h"
 
+
 TEST_F(IntQueueTest, PushAndPopTest) {
     queue->push(1);
     queue->push(2);
@@ -8,11 +9,11 @@ TEST_F(IntQueueTest, PushAndPopTest) {
     queue->push(4);
     queue->push(5);
 
-    EXPECT_EQ(queue->pop(), 5);
-    EXPECT_EQ(queue->pop(), 4);
-    EXPECT_EQ(queue->pop(), 3);
-    EXPECT_EQ(queue->pop(), 2);
     EXPECT_EQ(queue->pop(), 1);
+    EXPECT_EQ(queue->pop(), 2);
+    EXPECT_EQ(queue->pop(), 3);
+    EXPECT_EQ(queue->pop(), 4);
+    EXPECT_EQ(queue->pop(), 5);
 }
 
 TEST_F(IntQueueTest, PopFromEmptyQueueExceptionTest) {

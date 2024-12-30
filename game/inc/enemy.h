@@ -189,6 +189,7 @@ private:
 
 public:
     Peasant();
+    Peasant(bool noTexture);
     ~Peasant();
 };
 

@@ -177,6 +177,20 @@ bool Tower::enemyInRange(Enemy *enemy)
     return false;
 }
 
+void Tower::setPosition(sf::Vector2f pos)
+{
+    this->sprite.setPosition(pos);
+}
+
+void Tower::setRange(int range)
+{
+    this->range = range;
+}
+sf::CircleShape *Tower::getRangeCircle()
+{
+    return &this->rangeCircle;
+}
+
 //-----------------------------------
 //              Tower2
 //-----------------------------------

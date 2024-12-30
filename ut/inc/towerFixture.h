@@ -5,16 +5,18 @@
 class TowerTest : public testing::Test
 {
 protected:
-    Tower *tower;   
+    Tower *tower;
+    Enemy *enemy;
 
     void SetUp() override
     {
         tower = new Tower();
+        enemy = new Peasant(true);
     }
 
     void TearDown() override
     {
         delete tower;
+        delete enemy;
     }
 };
-

@@ -13,6 +13,7 @@ Enemy::Enemy(std::string enemy_type, int hp, float speed)
     this->current_path_point = 0;
     this->animation = nullptr;
 }
+
 Enemy::Enemy(std::string enemy_type, int hp, float speed, sf::Vector2f position)
 {
     this->enemy_type = enemy_type;
@@ -164,6 +165,16 @@ Peasant::Peasant() : Enemy("Peasant", 100, 0.8f)
     this->initSprite();
     this->value = 20;
     std::cout << "Peasant created" << std::endl;
+}
+
+Peasant::Peasant(bool noTexture=false) : Enemy("Peasant", 100, 0.8f)
+{
+    if (!noTexture)
+    {
+        this->initSprite();
+    }
+    this->value = 20;
+    std::cout << "Peasant created" << (noTexture ? " without texture" : "")<< std::endl;
 }
 
 Peasant::~Peasant()

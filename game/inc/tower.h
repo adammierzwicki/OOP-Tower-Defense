@@ -179,6 +179,12 @@ public:
     Gun *getGun() const;
 
     int getRange() const;
+
+    void setPosition(sf::Vector2f pos);
+
+    void setRange(int range);
+
+    sf::CircleShape *getRangeCircle();
 };
 
 /**

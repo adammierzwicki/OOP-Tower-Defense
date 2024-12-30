@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include "../inc/queueFixture.h"
 
-
-TEST_F(IntQueueTest, PushAndPopTest) {
+TEST_F(IntQueueTest, PushAndPopTest)
+{
     queue->push(1);
     queue->push(2);
     queue->push(3);
@@ -16,16 +16,19 @@ TEST_F(IntQueueTest, PushAndPopTest) {
     EXPECT_EQ(queue->pop(), 5);
 }
 
-TEST_F(IntQueueTest, PopFromEmptyQueueExceptionTest) {
+TEST_F(IntQueueTest, PopFromEmptyQueueExceptionTest)
+{
     EXPECT_THROW(queue->pop(), std::runtime_error);
 }
 
-TEST_F(IntQueueTest, EmptyQueuePropertiesTest) {
+TEST_F(IntQueueTest, EmptyQueuePropertiesTest)
+{
     EXPECT_TRUE(queue->empty());
     EXPECT_EQ(queue->getSize(), 0);
 }
 
-TEST_F(IntQueueTest, NonEmptyQueuePropertiesTest) {
+TEST_F(IntQueueTest, NonEmptyQueuePropertiesTest)
+{
     queue->push(1);
     queue->push(2);
     queue->push(3);
@@ -34,7 +37,19 @@ TEST_F(IntQueueTest, NonEmptyQueuePropertiesTest) {
     EXPECT_EQ(queue->getSize(), 3);
 }
 
-TEST(Simple, IntQueueTest) {
+TEST_F(CharQueueTest, CharQueueTest)
+{
+    queue->push('w');
+    queue->push('p');
+    queue->push('h');
+
+    EXPECT_EQ(queue->pop(), 'w');
+    EXPECT_EQ(queue->pop(), 'p');
+    EXPECT_EQ(queue->pop(), 'h');
+}
+
+TEST(Simple, IntQueueTest)
+{
     Queue<int> queue;
     queue.push(1);
     queue.push(2);
@@ -45,7 +60,8 @@ TEST(Simple, IntQueueTest) {
     EXPECT_EQ(queue.pop(), 3);
 }
 
-TEST(Simple, DoubleQueueTest) {
+TEST(Simple, DoubleQueueTest)
+{
     Queue<double> queue;
     queue.push(1.1);
     queue.push(2.2);
@@ -56,7 +72,8 @@ TEST(Simple, DoubleQueueTest) {
     EXPECT_EQ(queue.pop(), 3.3);
 }
 
-TEST(Simple, StringQueueTest) {
+TEST(Simple, StringQueueTest)
+{
     Queue<std::string> queue;
     queue.push("one");
     queue.push("two");
@@ -66,5 +83,3 @@ TEST(Simple, StringQueueTest) {
     EXPECT_EQ(queue.pop(), "two");
     EXPECT_EQ(queue.pop(), "three");
 }
-
-

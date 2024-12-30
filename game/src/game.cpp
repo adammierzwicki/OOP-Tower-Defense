@@ -349,7 +349,7 @@ void Game::updateSelectBox()
 
 void Game::updateUI()
 {
-    this->ui->setRoundText(this->round);
+    this->ui->setRoundText(this->round + 1);
     this->ui->setHealthText(this->playerHp);
     this->ui->setMoneyText(this->money);
 }

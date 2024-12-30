@@ -19,7 +19,6 @@ set(HEADERS
 
 set(SOURCES
     src/animation.cpp
-    src/customQueue.cpp
     src/drawableObject.cpp
     src/enemy.cpp
     src/game.cpp

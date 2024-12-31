@@ -156,7 +156,9 @@ void Tower::shoot(Enemy *enemy, float deltaTime)
 Tower *Tower::upgrade()
 {
     std::cout << "Upgrading Tower to Tower2" << std::endl;
-    return new Tower2(position, level + 1, range + 10, (new Gun(*this->gun)));
+    Tower2 *t = new Tower2(position, level + 1, range + 10, (new Gun(*this->gun)));
+    t->setTile(this->occupiedTile.first, this->occupiedTile.second);
+    return t;
 }
 
 void Tower::showTowerRange() { this->showRange = true; }
@@ -221,7 +223,9 @@ Tower2::Tower2(sf::Vector2f position, int level, int range, Gun *gun)
 Tower *Tower2::upgrade()
 {
     std::cout << "Upgrading Tower2 to Tower3" << std::endl;
-    return new Tower3(position, level + 1, range + 10, (new Gun(*this->gun)));
+    Tower3 *t = new Tower3(position, level + 1, range + 10, (new Gun(*this->gun)));
+    t->setTile(this->occupiedTile.first, this->occupiedTile.second);
+    return t;
 }
 
 //-----------------------------------

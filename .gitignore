@@ -9,3 +9,4 @@ venv/
 *.o
 *.dll
 build/
+external/sfml*

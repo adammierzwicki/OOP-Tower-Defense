@@ -1,8 +1,12 @@
 #pragma once
+
 #include <iostream>
+
 #include <SFML/Graphics.hpp>
+
 #include "drawableObject.h"
 #include "ui.h"
+
 class UI;
 
 /**
@@ -11,14 +15,13 @@ class UI;
  * Contains methods for initializing window, polling
  * events and rendering objects on screen
  */
-class WindowHandler
-{
+class WindowHandler {
 private:
     //-----------------------------------
     //             Attributes
     //-----------------------------------
 
-    sf::RenderWindow *window;
+    sf::RenderWindow* window;
     sf::VideoMode videoMode;
     sf::Event windowEvent;
     std::vector<sf::Event> events;
@@ -39,7 +42,6 @@ private:
      * Polls events from window and handles them
      */
     void pollEvents();
-
 
 public:
 
@@ -67,10 +69,15 @@ public:
 
     /**
      * @brief Get window
-     *
      * @return Pointer to window object
      */
-    sf::RenderWindow *getWindow() const;
+    sf::RenderWindow* getWindow() const;
+
+    /**
+     * @brief Get events list
+     * @return Vector of events
+     */
+    const std::vector<sf::Event>& getEvents() const;
 
     //-----------------------------------
     //          Public methods
@@ -91,7 +98,7 @@ public:
      *
      * Renders background and all objects from `screenContent` vector in order on window
      */
-    void render(sf::Sprite background, std::vector<DrawableObject *> screenContent, UI *ui);
+    void render(sf::Sprite background, std::vector<DrawableObject*> screenContent, UI* ui);
 
     /**
      * @brief Check if window is open
@@ -106,6 +113,4 @@ public:
      * Calls `pollEvents` function
      */
     void update();
-
-    const std::vector<sf::Event> &getEvents() const;
 };

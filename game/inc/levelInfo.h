@@ -1,56 +1,45 @@
 #pragma once
+
 #include <fstream>
 #include <map>
-// #include <string>
 #include <vector>
+
 #include <SFML/Graphics.hpp>
+
 #include "customQueue.h"
+#include "logger.h"
 
 /**
  * @brief Class for loading and storing level information
  *
  * Contains methods for loading level information from file and accessors for level data
  */
-class LevelInfo
-{
+class LevelInfo {
 private:
     //-----------------------------------
     //             Attributes
     //-----------------------------------
 
     int level;
-    std::string mapFilePath;
-    std::fstream mapFile;
-    // std::map<int, std::vector<char>> rounds;
-    // std::vector<char> enemiesVector;
+    std::ifstream mapFile;
+    sf::Texture levelBackground;
+
     std::map<int, Queue<char>> rounds;
-    Queue<char> enemiesVector;
+    int roundsCount;
+
     std::vector<sf::Vector2f> path;
     int pathLength;
+
     std::pair<int, int> mapSize;
     std::vector<std::vector<bool>> map;
     sf::Vector2f mapTileSize;
     sf::Vector2f mapCorners[4];
-    sf::Texture levelBackground;
-    int roundsCount;
+
+    Logger* logger;
 
     //-----------------------------------
     //          Private methods
     //-----------------------------------
-
-    /**
-     * @brief Load map corner coordinates
-     *
-     * Reads map corner coordinates and tile size from map file
-     */
-    void loadCoordinates();
-
-    /**
-     * @brief Load enemies from map file
-     *
-     * Reads enemy types and their number from map file
-     */
-    void loadEnemies();
 
     /**
      * @brief Load level from map file
@@ -60,6 +49,20 @@ private:
     void loadLevel();
 
     /**
+     * @brief Load path points from map file
+     *
+     * Reads path points from map file
+     */
+    void loadPathPoints();
+
+    /**
+     * @brief Load enemies from map file
+     *
+     * Reads enemy types and their number from map file
+     */
+    void loadEnemies();
+
+    /**
      * @brief Load blocked tiles from map file
      *
      * Reads map size and blocked tiles from map file
@@ -67,11 +70,11 @@ private:
     void loadMap();
 
     /**
-     * @brief Load path points from map file
+     * @brief Load map corner coordinates
      *
-     * Reads path points from map file
+     * Reads map corner coordinates and tile size from map file
      */
-    void loadPathPoints();
+    void loadCoordinates();
 
     /**
      * @brief Load level background texture
@@ -107,68 +110,63 @@ public:
     /**
      * @brief Get level background texture
      * @return Level background texture
-     *
-     * Get level background texture
      */
-    sf::Texture getBackgroundTexture();
-
-    /**
-     * @brief Get enemies vector
-     * @return Enemies vector
-     *
-     * Get enemies in vector format
-     */
-    char getNextEnemy(int round);
-
-    /**
-     * @brief Get last point of path
-     * @return End point of path
-     *
-     * Get last point of path in vector format
-     */
-    sf::Vector2f getLastPathPoint();
+    sf::Texture getBackgroundTexture() const;
 
     /**
      * @brief Get map corners coordinates
      * @return Vector with map corners coordinates
      */
-    sf::Vector2f *getMapCorners();
+    const sf::Vector2f* getMapCorners() const;
+
+    /**
+    * @brief Get map height
+    * @return Map height
+    */
+    int getMapHeight() const;
 
     /**
      * @brief Get map width
      * @return Map width
      */
-    int getMapWidth();
-
-    /**
-     * @brief Get map height
-     * @return Map height
-     */
-    int getMapHeight();
+    int getMapWidth() const;
 
     /**
      * @brief Get map tile size
      * @return Map tile size
      */
-    sf::Vector2f getMapTileSize();
+    sf::Vector2f getMapTileSize() const;
+
+    /**
+     * @brief Get enemies vector
+     * @param round Round number
+     * @return Enemies vector
+     */
+    char getNextEnemy(int round);
 
     /**
      * @brief Get path points
      * @return Path points
-     *
-     * Get path points in vector format
      */
-    std::vector<sf::Vector2f> getPath();
+    std::vector<sf::Vector2f> getPath() const;
+
+    /**
+     * @brief Get last point of path
+     * @return End point of path
+     */
+    sf::Vector2f getLastPathPoint() const;
 
     /**
      * @brief Get number of path points
      * @return Path length
-     *
-     * Get number of path points
      */
-    int getPathLength();
+    int getPathLength() const;
 
-    int getRoundsCount();
+    /**
+     * @brief Get number of rounds
+     * @return Number of rounds
+     */
+    int getRoundsCount() const;
 
     //-----------------------------------
     //          Public methods
@@ -176,31 +174,30 @@ public:
 
     /**
      * @brief Check if tile is blocked
-     * @param x X tile coordinate
-     * @param y Y tile coordinate
+     * @param tile Pair of tile coordinates
      * @return True if tile is blocked, false otherwise
-     *
-     * Get map size in pair format
      */
-    bool isTileBlocked(int x, int y);
+    bool isTileBlocked(std::pair<int, int> tile) const;
 
     /**
      * @brief Mark tile as blocked
-     * @param x X tile coordinate
-     * @param y Y tile coordinate
+     * @param tile Pair of tile coordinates
      *
      * Mark tile as blocked in map
      */
-    void blockTile(int x, int y);
-
+    void blockTile(std::pair<int, int> tile);
     /**
      * @brief Remove tower from map
-     * @param x X tile coordinate
-     * @param y Y tile coordinate
+     * @param tile Pair of tile coordinates
      *
      * Mark tile as unblocked in map
      */
-    void unblockTile(int x, int y);
+    void unblockTile(std::pair<int, int> tile);
 
-    bool hasNextEnemy(int round);
+    /**
+     * @brief Check if there are enemies left in round
+     * @param round Round number
+     * @return True if there are enemies left, false otherwise
+     */
+    bool hasNextEnemy(int round) const;
 };

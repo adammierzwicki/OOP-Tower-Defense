@@ -1,63 +1,74 @@
-#include <iostream>
 #include "../inc/enemy.h"
+
+#include <iostream>
 
 //-----------------------------------
 //     Constructor and destructor
 //-----------------------------------
 
-Enemy::Enemy(std::string enemy_type, int hp, float speed)
-{
-    this->enemy_type = enemy_type;
+Enemy::Enemy(std::string enemyType, int hp, float speed, int value, int damage) {
+    this->initVariables();
+    this->enemyType = enemyType;
     this->hp = hp;
     this->speed = speed;
-    this->current_path_point = 0;
-    this->animation = nullptr;
+    this->value = value;
+    this->damage = damage;
+    this->logger->log(LogLevel::DEBUG, "Enemy " + this->enemyType + " created (default constructor)", "Enemy::Enemy()", __LINE__);
 }
 
-Enemy::Enemy(std::string enemy_type, int hp, float speed, sf::Vector2f position)
-{
-    this->enemy_type = enemy_type;
+Enemy::Enemy(std::string enemyType, int hp, float speed, int value, int damage, sf::Vector2f position) {
+    this->initVariables();
+    this->enemyType = enemyType;
     this->hp = hp;
     this->speed = speed;
-    this->sprite.setPosition(position);
-    this->current_path_point = 0;
-    this->animation = nullptr;
+    this->value = value;
+    this->damage = damage;
+    this->setStartPosition(position);
+    this->logger->log(LogLevel::DEBUG, "Enemy " + this->enemyType + " created (position constructor)", "Enemy::Enemy()", __LINE__);
 }
 
-Enemy::~Enemy()
-{
-    if (this->animation != nullptr)
-    {
+Enemy::~Enemy() {
+    if (this->animation != nullptr) {
         delete this->animation;
         this->animation = nullptr;
     }
-    std::cout << "Enemy destroyed" << std::endl;
+    this->logger->log(LogLevel::DEBUG, "Enemy " + this->enemyType + " destroyed", "Enemy::~Enemy()", __LINE__);
 }
 
 //-----------------------------------
 //          Private methods
 //-----------------------------------
 
-void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
-{
+void Enemy::animate(float deltaTime) {
+    this->animation->update(this->animationRow, deltaTime);
+    this->sprite.setTextureRect(this->animation->getUVrect());
+}
+
+void Enemy::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(this->sprite, states);
 }
 
-void Enemy::animate(int row, float deltaTime)
-{
-    this->animation->update(row, deltaTime);
-    this->sprite.setTextureRect(this->animation->getUVrect());
+void Enemy::initVariables() {
+    this->sprite = sf::Sprite();
+    this->texture = sf::Texture();
+    this->animation = nullptr;
+    this->animationRow = 0;
+    this->currentPathPoint = 0;
+
+    this->logger = Logger::getInstance();
 }
 
 //-----------------------------------
 //             Accessors
 //-----------------------------------
 
+int Enemy::getDamage() const { return this->damage; }
+
 int Enemy::getHp() const { return this->hp; }
 
 int Enemy::getSpeed() const { return this->speed; }
 
-std::string Enemy::getType() const { return this->enemy_type; }
+std::string Enemy::getType() const { return this->enemyType; }
 
 sf::Vector2f Enemy::getPosition() const { return this->sprite.getPosition(); }
 
@@ -67,8 +78,7 @@ int Enemy::getValue() const { return this->value; }
 //             Modifiers
 //-----------------------------------
 
-void Enemy::setStartPosition(sf::Vector2f position)
-{
+void Enemy::setStartPosition(sf::Vector2f position) {
     this->sprite.setPosition(position);
 }
 
@@ -76,164 +86,117 @@ void Enemy::setStartPosition(sf::Vector2f position)
 //          Public methods
 //-----------------------------------
 
-bool Enemy::isDead()
-{
-    return this->hp <= 0;
+void Enemy::update(std::vector<sf::Vector2f>& path, float deltaTime) {
+    this->moveAlong(path);
+    this->animate(deltaTime);
 }
 
-void Enemy::moveAlong(std::vector<sf::Vector2f> &path)
-{
-    if (this->current_path_point >= static_cast<int>(path.size()))
-    {
+void Enemy::moveAlong(std::vector<sf::Vector2f>& path) {
+    if (this->currentPathPoint >= static_cast<int>(path.size())) {
         return;
     }
 
-    sf::Vector2f direction = path[this->current_path_point] - this->sprite.getPosition();
-    // if (direction.x > 0 && direction.y > 0)
-    // {
-    //     this->animation_row = 0;
-    // }
-    // else if (direction.x > 0 && direction.y < 0)
-    // {
-    //     this->animation_row = 1;
-    // }
-    // else if (direction.x < 0 && direction.y < 0)
-    // {
-    //     this->animation_row = 2;
-    // }
-    // else
-    // {
-    //     this->animation_row = 3;
-    // }
-    if (direction.x > 0 && direction.y > 0)
-    {
-        this->animation_row = 5;
+    sf::Vector2f direction = path[this->currentPathPoint] - this->sprite.getPosition();
+    if (direction.x > 0 && direction.y > 0) {
+        this->animationRow = 5;
     }
-    else if (direction.x > 0 && direction.y < 0)
-    {
-        this->animation_row = 3;
+    else if (direction.x > 0 && direction.y < 0) {
+        this->animationRow = 3;
     }
-    else if (direction.x < 0 && direction.y < 0)
-    {
-        this->animation_row = 1;
+    else if (direction.x < 0 && direction.y < 0) {
+        this->animationRow = 1;
     }
-    else
-    {
-        this->animation_row = 7;
+    else {
+        this->animationRow = 7;
     }
 
-    if (direction.x < 1 && direction.y < 1)
-    {
-        this->current_path_point++;
+    if (direction.x < 1 && direction.y < 1) {
+        this->currentPathPoint++;
     }
 
-    // Normalize the direction vector
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    if (length != 0)
-    {
+    if (length != 0) {
         direction /= length;
     }
+
     this->sprite.setPosition(this->sprite.getPosition() + direction * this->speed);
 }
 
-void Enemy::takeDamage(int damage)
-{
+void Enemy::takeDamage(int damage) {
     this->hp -= damage;
-    if (this->isDead())
-    {
-        std::cout << "Enemy died" << std::endl;
-        // todo: remove from screen and queue
+    if (this->isDead()) {
+        this->logger->log(LogLevel::DEBUG, "Enemy " + this->enemyType + " died", "Enemy::takeDamage()", __LINE__);
+        //! play death animation
     }
-    else
-    {
-        std::cout << "Enemy takes " << damage << " damage" << std::endl;
+    else {
+        this->logger->log(LogLevel::DEBUG, "Enemy " + this->enemyType + " took " + std::to_string(damage) + " damage", "Enemy::takeDamage()", __LINE__);
+        //! play hit animation
     }
 }
 
-void Enemy::update(std::vector<sf::Vector2f> &path, float deltaTime)
-{
-    this->moveAlong(path);
-    this->animate(this->animation_row, deltaTime);
+bool Enemy::isDead() {
+    return this->hp <= 0;
 }
 
 //-----------------------------------
 //              Peasant
 //-----------------------------------
 
-Peasant::Peasant() : Enemy("Peasant", 100, 0.8f)
-{
+Peasant::Peasant() : Enemy("Peasant", 100, 0.8f, 20, 10) {
     this->initSprite();
-    this->value = 20;
-    std::cout << "Peasant created" << std::endl;
+    this->logger->log(LogLevel::DEBUG, "Peasant created", "Peasant::Peasant()", __LINE__);
 }
 
-Peasant::Peasant(bool noTexture=false) : Enemy("Peasant", 100, 0.8f)
-{
-    if (!noTexture)
-    {
+Peasant::Peasant(bool loadTexture) : Enemy("Peasant", 100, 0.8f, 20, 10) {
+    if (loadTexture) {
         this->initSprite();
     }
-    this->value = 20;
-    std::cout << "Peasant created" << (noTexture ? " without texture" : "")<< std::endl;
+    this->logger->log(LogLevel::DEBUG, "Peasant " + std::string(loadTexture ? "" : "without texture") + " created", "Peasant::Peasant()", __LINE__);
 }
 
-Peasant::~Peasant()
-{
-    if (this->animation != nullptr)
-    {
+Peasant::~Peasant() {
+    if (this->animation != nullptr) {
         delete this->animation;
         this->animation = nullptr;
     }
-    std::cout << "Peasant destroyed" << std::endl;
+    this->logger->log(LogLevel::DEBUG, "Peasant destroyed", "Peasant::~Peasant()", __LINE__);
 }
 
-void Peasant::initSprite()
-{
-    if (!this->texture.loadFromFile("textures/peasant_texture.png"))
-    {
-        throw std::runtime_error("Unable to load peasant texture");
+void Peasant::initSprite() {
+    if (!this->texture.loadFromFile("textures/peasant_texture.png")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load peasant texture (\"./textures/peasant_texture.png\")", "Peasant::initSprite()", __LINE__);
+        throw std::runtime_error("Failed to load peasant texture");
     }
-    // this->animation = new Animation(&this->texture, sf::Vector2u(15, 4), 0.09f);
     this->animation = new Animation(&this->texture, sf::Vector2u(14, 8), 0.15f);
     this->sprite.setTexture(this->texture);
-    this->sprite.setScale(1.f, 1.f);
     this->sprite.setOrigin(60.f, 80.f);
-    // this->sprite.setScale(0.4f, 0.4f);
-    // this->sprite.setOrigin(13.7f, 120.f);
 }
 
 //-----------------------------------
 //              Warrior
 //-----------------------------------
 
-Warrior::Warrior() : Enemy("Warrior", 200, 3.f)
-{
+Warrior::Warrior() : Enemy("Warrior", 200, 3.f, 100, 20) {
     this->initSprite();
-    this->value = 100;
-    std::cout << "Warrior created" << std::endl;
+    this->logger->log(LogLevel::DEBUG, "Warrior created", "Warrior::Warrior()", __LINE__);
 }
 
-Warrior::~Warrior()
-{
-    if (this->animation != nullptr)
-    {
+Warrior::~Warrior() {
+    if (this->animation != nullptr) {
         delete this->animation;
         this->animation = nullptr;
     }
-    std::cout << "Warrior destroyed" << std::endl;
+    this->logger->log(LogLevel::DEBUG, "Warrior destroyed", "Warrior::~Warrior()", __LINE__);
 }
 
-void Warrior::initSprite()
-{
-    std::cout << "Loading warrior texture" << std::endl;
-    if (!this->texture.loadFromFile("textures/warrior_texture.png"))
-    {
-        throw std::runtime_error("Unable to load warrior texture");
+void Warrior::initSprite() {
+    if (!this->texture.loadFromFile("textures/warrior_texture.png")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load warrior texture (\"./textures/warrior_texture.png\")", "Warrior::initSprite()", __LINE__);
+        throw std::runtime_error("Failed to load warrior texture");
     }
-    // TODO change values after adding texture
+    //! adjust animation
     this->animation = new Animation(&this->texture, sf::Vector2u(14, 8), 0.15f);
     this->sprite.setTexture(this->texture);
-    this->sprite.setScale(1.f, 1.f);
     this->sprite.setOrigin(60.f, 80.f);
 }
 
@@ -241,32 +204,26 @@ void Warrior::initSprite()
 //            HeavyKnight
 //-----------------------------------
 
-HeavyKnight::HeavyKnight() : Enemy("HeavyKnight", 600, 1.f)
-{
+HeavyKnight::HeavyKnight() : Enemy("HeavyKnight", 600, 1.f, 250, 50) {
     this->initSprite();
-    this->value = 250;
-    std::cout << "HeavyKnight created" << std::endl;
+    this->logger->log(LogLevel::DEBUG, "HeavyKnight created", "HeavyKnight::HeavyKnight()", __LINE__);
 }
 
-HeavyKnight::~HeavyKnight()
-{
-    if (this->animation != nullptr)
-    {
+HeavyKnight::~HeavyKnight() {
+    if (this->animation != nullptr) {
         delete this->animation;
         this->animation = nullptr;
     }
-    std::cout << "HeavyKnight destroyed" << std::endl;
+    this->logger->log(LogLevel::DEBUG, "HeavyKnight destroyed", "HeavyKnight::~HeavyKnight()", __LINE__);
 }
 
-void HeavyKnight::initSprite()
-{
-    if (!this->texture.loadFromFile("textures/heavy_texture.png"))
-    {
-        throw std::runtime_error("Unable to load heavy knight texture");
+void HeavyKnight::initSprite() {
+    if (!this->texture.loadFromFile("textures/heavy_texture.png")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load heavy knight texture (\"./textures/heavy_texture.png\")", "HeavyKnight::initSprite()", __LINE__);
+        throw std::runtime_error("Failed to load heavy knight texture");
     }
-    // TODO change values after adding texture
+    //! adjust animation
     this->animation = new Animation(&this->texture, sf::Vector2u(14, 8), 0.15f);
     this->sprite.setTexture(this->texture);
-    this->sprite.setScale(1.f, 1.f);
     this->sprite.setOrigin(60.f, 80.f);
 }

@@ -1,105 +1,128 @@
+#include "../inc/menu.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include <SFML/Graphics.hpp>
-#include "../inc/menu.h"
+
+//-----------------------------------
+//     Constructor and destructor
+//-----------------------------------
 
 Menu::Menu(sf::RenderWindow* window) : window(window), selectedItemIndex(0) {
-    if (!font.loadFromFile("fonts/BoldKei-nRAWP.ttf")) {
+    this->logger = Logger::getInstance();
+
+    if (!this->font.loadFromFile("fonts/BoldKei-nRAWP.ttf")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load font (\"./fonts/BoldKei-nRAWP.ttf\")", "Menu::Menu()", __LINE__);
         throw std::runtime_error("Failed to load font");
     }
-    std::vector<std::string> items = {"Start Game", "Exit"};
 
-    if (!backgroundTexture.loadFromFile("textures/starting_background.png")) {
+    if (!this->backgroundTexture.loadFromFile("textures/starting_background.png")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load menu background texture (\"./textures/starting_background.png\")", "Menu::Menu()", __LINE__);
         throw std::runtime_error("Failed to load menu background texture");
     }
-    backgroundSprite.setTexture(backgroundTexture);
+    this->backgroundSprite.setTexture(this->backgroundTexture);
 
     const float screenWidth = this->window->getSize().x;
     const float screenHeight = this->window->getSize().y;
-    const float yDistance = 150.0f;
+    const float yDistance = 150.f;
 
-    float totalMenuHeight = items.size() * yDistance;
-    float startY = (screenHeight - totalMenuHeight) / 2.0f + 100.f;
+    std::vector<std::string> items = { "Start Game", "Exit" };
+    const float totalMenuHeight = items.size() * yDistance;
+    const float startY = (screenHeight - totalMenuHeight) / 2.f + 100.f;
 
-    this->title.setFont(font);
+    this->title.setFont(this->font);
     this->title.setString("Tower Defense");
-    this->title.setCharacterSize(200);
-    this->title.setFillColor(sf::Color::Yellow);
+    this->title.setCharacterSize(250);
+    this->title.setFillColor(sf::Color(254, 153, 1));
+    this->title.setOutlineColor(sf::Color(104, 13, 14));
+    this->title.setOutlineThickness(7);
     this->title.setStyle(sf::Text::Bold);
-    this->title.setPosition((screenWidth - title.getLocalBounds().width) / 2.0f, 50.f);
+    this->title.setPosition((screenWidth - this->title.getLocalBounds().width) / 2.f, 20.f);
 
     for (size_t i = 0; i < items.size(); ++i) {
         sf::Text text;
-        text.setFont(font);
+        text.setFont(this->font);
         text.setString(items[i]);
-        text.setCharacterSize(100);
+        text.setCharacterSize(150);
+        text.setOutlineColor(sf::Color::Black);
+        text.setOutlineThickness(5);
 
         sf::FloatRect textBounds = text.getLocalBounds();
         float textWidth = textBounds.width;
         float textHeight = textBounds.height;
 
-        text.setPosition((screenWidth - textWidth) / 2.0f, startY + i * yDistance);
+        text.setPosition((screenWidth - textWidth) / 2.f, startY + i * yDistance);
         text.setOrigin(textBounds.left, textBounds.top + textHeight / 2);
-        if (i == 0) {
-            text.setFillColor(sf::Color::Green);
-        } else {
-            text.setFillColor(sf::Color::White);
-        }
-        menuItems.push_back(text);
+        text.setFillColor(sf::Color::White);
+
+        this->menuItems.push_back(text);
     }
 }
 
 Menu::~Menu() {}
 
+//-----------------------------------
+//             Accessors
+//-----------------------------------
+
+int Menu::getSelectedItemIndex() const { return this->selectedItemIndex; }
+
+//-----------------------------------
+//          Public methods
+//-----------------------------------
+
 int Menu::startMenu() {
     bool isRunning = true;
 
-    while (isRunning && window->isOpen()) {
+    while (isRunning && this->window->isOpen()) {
         handleInput(isRunning);
         render();
     }
-    return selectedItemIndex;
-}
-
-int Menu::getSelectedItemIndex() const {
-    return selectedItemIndex;
+    return this->selectedItemIndex;
 }
 
 void Menu::render() {
-    window->clear();
-    window->draw(backgroundSprite);
-    window->draw(title);
-    for (const auto& item : menuItems) {
-        window->draw(item);
+    this->window->clear();
+    this->window->draw(this->backgroundSprite);
+    this->window->draw(this->title);
+    for (const auto& item : this->menuItems) {
+        this->window->draw(item);
     }
-    window->display();
+    this->window->display();
 }
 
-void Menu::handleInput(bool &isRunning) {
+void Menu::handleInput(bool& isRunning) {
     sf::Event event;
-    while (window->pollEvent(event)) {
+    while (this->window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            window->close();
-        } else if (event.type == sf::Event::MouseMoved) {
-            sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+            this->window->close();
+        }
+        else if (event.type == sf::Event::MouseMoved) {
+            sf::Vector2i mousePos = sf::Mouse::getPosition(*this->window);
 
-            for (size_t i = 0; i < menuItems.size(); ++i) {
-                if (menuItems[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                    menuItems[selectedItemIndex].setFillColor(sf::Color::White);
-                    selectedItemIndex = i;
-                    menuItems[selectedItemIndex].setFillColor(sf::Color::Green);
+            for (size_t i = 0; i < this->menuItems.size(); ++i) {
+                if (this->menuItems[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                    this->menuItems[this->selectedItemIndex].setFillColor(sf::Color::White);
+                    this->selectedItemIndex = i;
+                    this->menuItems[this->selectedItemIndex].setFillColor(i == 1 ? sf::Color::Red : sf::Color::Green);
                     break;
                 }
+                else {
+                    this->menuItems[this->selectedItemIndex].setFillColor(sf::Color::White);
+                }
             }
-        } else if (event.type == sf::Event::MouseButtonPressed) {
+        }
+        else if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
-                if (menuItems[selectedItemIndex].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                    if (selectedItemIndex == 0) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(*this->window);
+                if (this->menuItems[this->selectedItemIndex].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                    if (this->selectedItemIndex == 0) {
                         isRunning = false;
-                    } else if (selectedItemIndex == 1) {
-                        window->close();
+                    }
+                    else if (this->selectedItemIndex == 1) {
+                        this->window->close();
                     }
                 }
             }

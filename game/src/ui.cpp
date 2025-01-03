@@ -1,31 +1,39 @@
 #include "../inc/ui.h"
+
 #include "../inc/prices.h"
 
+//-----------------------------------
+//     Constructor and destructor
+//-----------------------------------
+
 UI::UI(WindowHandler* windowHandler) : windowHandler(windowHandler), selectedButtonIndex(-1) {
-    if (!font.loadFromFile("fonts/BoldKei-nRAWP.ttf")) {
+    this->logger = Logger::getInstance();
+
+    if (!this->font.loadFromFile("fonts/BoldKei-nRAWP.ttf")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load font (\"./fonts/BoldKei-nRAWP.ttf\")", "UI::UI()", __LINE__);
         throw std::runtime_error("Failed to load font");
     }
 
-    roundDisplay.setFont(font);
-    roundDisplay.setCharacterSize(50);
-    roundDisplay.setFillColor(sf::Color::White);
-    roundDisplay.setPosition(20, 20);
+    this->roundDisplay.setFont(this->font);
+    this->roundDisplay.setCharacterSize(80);
+    this->roundDisplay.setFillColor(sf::Color::White);
+    this->roundDisplay.setPosition(20, 20);
 
-    healthDisplay.setFont(font);
-    healthDisplay.setCharacterSize(50);
-    healthDisplay.setFillColor(sf::Color::White);
-    healthDisplay.setPosition(20, 80);
+    this->healthDisplay.setFont(this->font);
+    this->healthDisplay.setCharacterSize(80);
+    this->healthDisplay.setFillColor(sf::Color::White);
+    this->healthDisplay.setPosition(20, 80);
 
-    moneyDisplay.setFont(font);
-    moneyDisplay.setCharacterSize(50);
-    moneyDisplay.setFillColor(sf::Color::White);
-    moneyDisplay.setPosition(20, 140);
+    this->moneyDisplay.setFont(this->font);
+    this->moneyDisplay.setCharacterSize(80);
+    this->moneyDisplay.setFillColor(sf::Color::White);
+    this->moneyDisplay.setPosition(20, 140);
 
-    const float buttonWidth = 400.0f;
-    const float buttonHeight = 100.0f;
-    const float buttonSpacing = 50.0f;
-    float xPosition = 50.0f;
-    float yPosition = windowHandler->getWindow()->getSize().y - buttonHeight - 200.0f;
+    const float buttonWidth = 400.f;
+    const float buttonHeight = 100.f;
+    const float buttonSpacing = 50.f;
+    float xPosition = 50.f;
+    float yPosition = windowHandler->getWindow()->getSize().y - buttonHeight - 200.f;
 
     std::vector<std::pair<std::string, int>> buttonData = {
         {"Machine Gun Tower", Prices::machineGunTower},
@@ -41,117 +49,136 @@ UI::UI(WindowHandler* windowHandler) : windowHandler(windowHandler), selectedBut
             button.rectangle.setSize(sf::Vector2f(buttonWidth, buttonHeight));
             button.rectangle.setFillColor(sf::Color::Black);
             button.rectangle.setOutlineColor(sf::Color::White);
-            button.rectangle.setOutlineThickness(2.0f);
+            button.rectangle.setOutlineThickness(2.f);
             button.rectangle.setPosition(xPosition, yPosition);
 
-            button.nameText.setFont(font);
+            button.nameText.setFont(this->font);
             button.nameText.setString(label);
             button.nameText.setCharacterSize(30);
             button.nameText.setFillColor(sf::Color::White);
-            button.nameText.setPosition(
-                xPosition + 20.0f,
-                yPosition + 10.0f
+            button.nameText.setPosition(xPosition + 20.f,
+                yPosition + 10.f
             );
 
-            button.priceText.setFont(font);
+            button.priceText.setFont(this->font);
             button.priceText.setString("Price: " + std::to_string(price));
             button.priceText.setCharacterSize(25);
             button.priceText.setFillColor(sf::Color::White);
-            button.priceText.setPosition(
-                xPosition + 20.0f,
-                yPosition + buttonHeight - 40.0f
-            );
-        } else {
+            button.priceText.setPosition(xPosition + 20.f, yPosition + buttonHeight - 40.f);
+        }
+        else {
             button.rectangle.setSize(sf::Vector2f(buttonWidth, buttonHeight));
             button.rectangle.setFillColor(sf::Color::Black);
             button.rectangle.setOutlineColor(sf::Color::White);
-            button.rectangle.setOutlineThickness(2.0f);
+            button.rectangle.setOutlineThickness(2.f);
             button.rectangle.setPosition(xPosition, yPosition);
 
-            button.nameText.setFont(font);
+            button.nameText.setFont(this->font);
             button.nameText.setString(label);
             button.nameText.setCharacterSize(55);
             button.nameText.setFillColor(sf::Color::White);
-            button.nameText.setPosition(
-                xPosition + 20.0f,
-                yPosition + 10.0f
-            );
+            button.nameText.setPosition(xPosition + 20.f, yPosition + 10.f);
         }
 
-        if (label == "Machine Gun Tower"){
+        if (label == "Machine Gun Tower") {
             yPosition += buttonHeight + buttonSpacing;
         }
-        else if (label == "High Damage Tower"){
+        else if (label == "High Damage Tower") {
             xPosition += buttonWidth + buttonSpacing;
         }
-        else if (label == "Sniper Tower")
-        {
-            yPosition = windowHandler->getWindow()->getSize().y - buttonHeight - 200.0f;
-            xPosition = windowHandler->getWindow()->getSize().x - buttonWidth - 50.0f;
+        else if (label == "Sniper Tower") {
+            yPosition = windowHandler->getWindow()->getSize().y - buttonHeight - 200.f;
+            xPosition = windowHandler->getWindow()->getSize().x - buttonWidth - 50.f;
         }
-        else if (label == "Start Game")
-        {
-            xPosition = windowHandler->getWindow()->getSize().x - buttonWidth - 50.0f;
+        else if (label == "Start Game") {
+            xPosition = windowHandler->getWindow()->getSize().x - buttonWidth - 50.f;
             yPosition += buttonHeight + buttonSpacing;
         }
-        buttons.push_back(button);
+        this->buttons.push_back(button);
     }
 }
 
-
 UI::~UI() {}
 
-void UI::render() {
-    windowHandler->getWindow()->draw(roundDisplay);
-    windowHandler->getWindow()->draw(healthDisplay);
-    windowHandler->getWindow()->draw(moneyDisplay);
+//-----------------------------------
+//             Accessors
+//-----------------------------------
 
-    for (const auto& button : buttons) {
+int UI::getSelectedButton() const { return this->selectedButtonIndex; }
+
+//-----------------------------------
+//             Modifiers
+//-----------------------------------
+
+void UI::setRoundText(int round) {
+    this->roundDisplay.setString("Round: " + std::to_string(round));
+}
+
+void UI::setHealthText(int health) {
+    this->healthDisplay.setString("Health: " + std::to_string(health));
+}
+
+void UI::setMoneyText(int money) {
+    this->moneyDisplay.setString("Money: " + std::to_string(money));
+}
+
+//-----------------------------------
+//          Public methods
+//-----------------------------------
+
+void UI::render() {
+    windowHandler->getWindow()->draw(this->roundDisplay);
+    windowHandler->getWindow()->draw(this->healthDisplay);
+    windowHandler->getWindow()->draw(this->moneyDisplay);
+
+    for (const auto& button : this->buttons) {
         windowHandler->getWindow()->draw(button.rectangle);
         windowHandler->getWindow()->draw(button.nameText);
         windowHandler->getWindow()->draw(button.priceText);
     }
 }
 
-ButtonType UI::handleInput()
-{
+ButtonType UI::handleInput() {
     std::vector<sf::Event> events = this->windowHandler->getEvents();
     for (const auto& event : events) {
         if (event.type == sf::Event::Closed) {
-            windowHandler->getWindow()->close();
-        } else if (event.type == sf::Event::MouseMoved) {
-            sf::Vector2i mousePos = sf::Mouse::getPosition(*windowHandler->getWindow());
+            this->windowHandler->getWindow()->close();
+        }
+        else if (event.type == sf::Event::MouseMoved) {
+            sf::Vector2i mousePos = sf::Mouse::getPosition(*this->windowHandler->getWindow());
 
-            for (auto& button : buttons) {
+            for (auto& button : this->buttons) {
                 if (button.rectangle.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                     button.rectangle.setFillColor(sf::Color::Green);
-                } else {
+                }
+                else {
                     button.rectangle.setFillColor(sf::Color::Black);
                 }
             }
-        } else if (event.type == sf::Event::MouseButtonPressed) {
+        }
+        else if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(*windowHandler->getWindow());
+                sf::Vector2i mousePos = sf::Mouse::getPosition(*this->windowHandler->getWindow());
 
-                for (size_t i = 0; i < buttons.size(); ++i) {
-                    if (buttons[i].rectangle.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                        selectedButtonIndex = static_cast<int>(i);
+                for (size_t i = 0; i < this->buttons.size(); ++i) {
+                    if (this->buttons[i].rectangle.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                        this->selectedButtonIndex = static_cast<int>(i);
                         switch (i) {
-                            case 0:
-                                std::cout << "Gun Type 1 selected\n";
-                                return ButtonType::MACHINE_GUN;
-                            case 1:
-                                std::cout << "Gun Type 2 selected\n";
-                                return ButtonType::HIGH_DAMAGE_GUN;
-                            case 2:
-                                std::cout << "Gun Type 3 selected\n";
-                                return ButtonType::SNIPER_RIFLE;
-                            case 3:
-                                std::cout << "Game Started\n";
-                                return ButtonType::START_GAME;
-                            case 4:
-                                std::cout << "Upgrade\n";
-                                return ButtonType::UPGRADE;
+                        case 0:
+                            this->logger->log(LogLevel::INFO, "Machine Gun Tower selected");
+                            return ButtonType::MACHINE_GUN;
+                        case 1:
+                            this->logger->log(LogLevel::INFO, "High Damage Tower selected");
+                            return ButtonType::HIGH_DAMAGE_GUN;
+                        case 2:
+                            this->logger->log(LogLevel::INFO, "Sniper Tower selected");
+                            return ButtonType::SNIPER_RIFLE;
+                        case 3:
+                            this->logger->log(LogLevel::INFO, "Game Started");
+                            return ButtonType::START_GAME;
+                        case 4:
+                            this->logger->log(LogLevel::INFO, "Upgrade selected");
+                            return ButtonType::UPGRADE;
                         }
                     }
                 }
@@ -159,22 +186,4 @@ ButtonType UI::handleInput()
         }
     }
     return ButtonType::NONE;
-}
-
-
-
-void UI::setRoundText(int round) {
-    roundDisplay.setString("Round: " + std::to_string(round));
-}
-
-void UI::setHealthText(int health) {
-    healthDisplay.setString("Health: " + std::to_string(health));
-}
-
-void UI::setMoneyText(int money) {
-    moneyDisplay.setString("Money: " + std::to_string(money));
-}
-
-int UI::getSelectedButton() const {
-    return selectedButtonIndex;
 }

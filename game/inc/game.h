@@ -1,85 +1,58 @@
 #pragma once
+
 #include <vector>
+
 #include "enemy.h"
 #include "levelInfo.h"
+#include "logger.h"
 #include "menu.h"
 #include "selectBox.h"
 #include "tower.h"
-#include "windowHandler.h"
 #include "ui.h"
+#include "windowHandler.h"
 
-
-class Game
-{
+class Game {
 private:
     //-----------------------------------
     //             Attributes
     //-----------------------------------
 
-    WindowHandler *window;
-    std::vector<Enemy *> enemies;
-    std::vector<Tower *> towers;
+    WindowHandler* window;
+    SelectBox* selectBox;
+    UI* ui;
+
+    LevelInfo* levelInfo;
     int level;
-    LevelInfo *levelInfo;
+    int round;
     int playerHp;
     int money;
-    bool endGame;
-    std::vector<sf::Vector2f> enemyPath;
-    UI *ui;
-    int round;
 
-    sf::Texture backgroundTexture;
     sf::Sprite background;
+    sf::Texture backgroundTexture;
 
-    SelectBox *selectBox;
-    bool cursorOnMap;
-    bool canPlaceTower;
-    bool newTowerChosen;
-
-    std::pair<int, int> currentTile;
-
-    float deltaTime;
-    sf::Clock clock;
-
-    std::vector<Enemy *> enemiesToAdd;
-    int nextToSpawn;
-    float spawnTimer;
+    std::vector<Enemy*> enemies;
+    std::vector<sf::Vector2f> enemyPath;
     float spawnDelay;
 
-    bool isRoundStarted;
+    std::vector<Tower*> towers;
+    std::pair<int, int> currentTile;
+    bool canPlaceTower;
     int gunType;
+    bool newTowerChosen;
+
+    bool cursorOnMap;
+    bool isRoundStarted;
+    bool endGame;
+
+    sf::Clock clock;
+    float deltaTime;
+    float spawnTimer;
+
+    Logger* logger;
 
     //-----------------------------------
     //          Private methods
     //-----------------------------------
-
-    /**
-     * @brief Add enemy to the game
-     * @param enemyType Character representing enemy type
-     *
-     *  Used in loadLevel function to add enemies to the game by their shortened name
-     * (P - Peasant, W - Warrior, H - HeavyKnight)
-     */
-    void addEnemy(char enemyType, sf::Vector2f initialPos);
-
-    void attack();
-
-    void autosave();
-
-    /**
-     * @brief Game loop
-     *
-     * Calls `update` and `render` functions in a loop while game is running
-     */
-    void gameLoop();
-
-    /**
-     * @brief Get cursor position relative to map
-     * @return Cursor position on map
-     *
-     * Converts screen coordinates to map coordinates and calculates tile position
-     */
-    sf::Vector2f getCursorProjection();
 
     /**
      * @brief Initialize game variables
@@ -97,14 +70,6 @@ private:
     void initWorld();
 
     /**
-     * @brief Check if cursor is on map
-     * @return True if cursor is on map, false otherwise
-     *
-     * Checks if cursor is inside the map polygon
-     */
-    bool isCursorOnMap();
-
-    /**
      * @brief Load level from map file
      * @param level Level number
      *
@@ -115,18 +80,62 @@ private:
     void loadLevel(int level);
 
     /**
+     * @brief Load game state from file
+     *
+     * Load game state from `autosave.txt` file
+     */
+    void loadSave();
+
+    /**
+     * @brief Get cursor position relative to map
+     * @return Cursor position on map
+     *
+     * Converts screen coordinates to map coordinates and calculates tile position
+     */
+    sf::Vector2f getCursorProjection();
+
+    /**
+     * @brief Check if cursor is on map
+     * @return True if cursor is on map, false otherwise
+     *
+     * Checks if cursor is inside the map polygon
+     */
+    bool isCursorOnMap();
+
+    /**
+     * @brief Game loop
+     *
+     * Calls `update` and `render` functions in a loop while game is running
+     */
+    void gameLoop();
+
+    /**
+     * @brief Handle UI input
+     *
+     * Handle button clicks on UI
+     */
+    void interpretUIInput();
+
+    /**
+     * @brief Check if round is over
+     *
+     * Check if all enemies are dead and no new enemies are to be spawned
+     */
+    void isRoundOver();
+
+    /**
+     * @brief Tower attack
+     *
+     * Check if tower is placed and enemy is in range, then shoot at enemy
+     */
+    void attack();
+
+    /**
      * @brief Place new tower on map
      *
      * If cursor is on map and left mouse button is pressed, place new tower on map
      */
     void placeTower();
-
-    /**
-     * @brief Render all objects
-     *
-     * Calls `WindowHandler::render` passing background and all objects to render
-     */
-    void render();
 
     /**
      * @brief Sell tower
@@ -136,10 +145,18 @@ private:
     void sellTower();
 
     /**
+     * @brief Add enemy to the game
+     * @param enemyType Character representing enemy type
+     *
+     *  Used in loadLevel function to add enemies to the game by their shortened name
+     * (P - Peasant, W - Warrior, H - HeavyKnight)
+     */
+    void addEnemy(char enemyType);
+
+    /**
      * @brief Spawn next enemy
      *
-     * Spawns next enemy by adding enemy from `enemiesToAdd` vector
-     * to `enemies` vector
+     * Spawns next enemy from `levelInfo` and adds it to `enemies` vector
      */
     void spawnEnemy();
 
@@ -150,6 +167,27 @@ private:
      */
     void update();
 
+    /**
+     * @brief Update games clock
+     *
+     * Updates games clock every iteration of game loop
+     */
+    void updateClock();
+
+    /**
+     * @brief Update enemies
+     *
+     * Move enemies along path, check if they are dead or
+     * reached the end of the path
+     */
+    void updateEnemies();
+
+    /**
+     * @brief Update towers
+     *
+     * Place new tower on map, sell tower, upgrade tower
+     */
+    void updateTowers();
 
     /**
      * @brief Updates position of selectBox
@@ -158,16 +196,34 @@ private:
      */
     void updateSelectBox();
 
+    /**
+     * @brief Update UI
+     *
+     * Update round, health and money text on screen
+     */
     void updateUI();
 
-    void interpretUIInput();
+    /**
+     * @brief Render all objects
+     *
+     * Calls `WindowHandler::render` passing background and all objects to render
+     */
+    void render();
 
-    void loadSave();
-
-    void isRoundOver();
-
+    /**
+     * @brief End game screen
+     *
+     * Display end game screen
+     */
     void endingScreen();
-    
+
+    /**
+     * @brief Autosave game
+     *
+     * Save game state to `autosave.txt` file at exit
+     */
+    void autosave();
+
 public:
     //-----------------------------------
     //     Constructor and destructor
@@ -188,9 +244,63 @@ public:
     ~Game();
 
     //-----------------------------------
+    //             Accessors
+    //-----------------------------------
+
+    /**
+     * @brief Get time passed since last frame
+     * @return Delta time
+     */
+    float getDeltaTime();
+
+    /**
+     * @brief Get level number
+     * @return Level number
+     */
+    int getLevel() const;
+
+    /**
+     * @brief Get round number
+     * @return Round number
+     */
+    int getRound() const;
+
+    /**
+     * @brief Get player money
+     * @return Player money
+     */
+    int getMoney() const;
+
+    /**
+     * @brief Get player HP
+     * @return Player HP
+     */
+    int getPlayerHp() const;
+
+    /**
+     * @brief Get enemies vector
+     * @return Enemies vector
+     */
+    std::vector<Enemy*> getEnemies() const;
+
+    /**
+     * @brief Get towers vector
+     * @return Towers vector
+     */
+    std::vector<Tower*> getTowers() const;
+
+    //-----------------------------------
     //          Public methods
     //-----------------------------------
 
+    /**
+     * @brief Overloaded operator<<
+     * @param os Output stream
+     * @param game Game object
+     * @return Output stream
+     *
+     * Overloaded operator<< to print game state to output stream
+     */
     friend std::ostream& operator<<(std::ostream& os, const Game& game);
 
     /**
@@ -206,25 +316,4 @@ public:
      * Opens start menu and waits for user to start a game, open settings or exit the game
      */
     void startingScreen();
-
-    /**
-     * @brief Update games clock
-     *
-     * Updates games clock every iteration of game loop
-     */
-    void updateClock();
-
-    float getDeltaTime();
-
-    int getLevel() const;
-
-    int getRound() const;
-
-    int getPlayerHp() const;
-
-    int getMoney() const;
-
-    std::vector<Enemy *> getEnemies() const;
-
-    std::vector<Tower *> getTowers() const;
 };

@@ -1,82 +1,90 @@
-#include <iostream>
-#include <string>
-#include <SFML/Graphics.hpp>
 #include "../inc/endGame.h"
 
-EndGame::EndGame(sf::RenderWindow* window, std::string message) : window(window), selectedItemIndex(1), message(message) {
-    if (!font.loadFromFile("fonts/BoldKei-nRAWP.ttf")) {
+#include <iostream>
+#include <string>
+
+#include <SFML/Graphics.hpp>
+
+
+//-----------------------------------
+//     Constructor and destructor
+//-----------------------------------
+
+EndGame::EndGame(sf::RenderWindow* window, std::string message) : window(window), message(message) {
+    this->logger = Logger::getInstance();
+
+    if (!this->font.loadFromFile("fonts/BoldKei-nRAWP.ttf")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load font (\"./fonts/BoldKei-nRAWP.ttf\")", "EndGame::EndGame", __LINE__);
         throw std::runtime_error("Failed to load font");
     }
-    if (!backgroundTexture.loadFromFile("textures/starting_background.png")) {
+    if (!this->backgroundTexture.loadFromFile("textures/starting_background.png")) {
+        this->logger->log(LogLevel::CRITICAL, "Failed to load menu background texture (\"./textures/starting_background.png\")", "EndGame::EndGame", __LINE__);
         throw std::runtime_error("Failed to load menu background texture");
     }
-    backgroundSprite.setTexture(backgroundTexture);
+    this->backgroundSprite.setTexture(this->backgroundTexture);
 
     const float screenWidth = this->window->getSize().x;
-    const float screenHeight = this->window->getSize().y;
-    const float yDistance = 150.0f;
-
-    float totalHeight = 2* yDistance;
-    float startY = 700;
+    const float startY = 700;
 
     sf::Text title;
-    title.setFont(font);
-    title.setString(message);
-    title.setCharacterSize(200);
-    title.setFillColor(sf::Color::Yellow);
-    title.setStyle(sf::Text::Bold);
-    title.setPosition((screenWidth - title.getLocalBounds().width) / 2.0f, 50.f);
+    title.setFont(this->font);
+    title.setString(this->message);
+    title.setCharacterSize(250);
+    title.setFillColor(sf::Color::White);
+    title.setOutlineColor(sf::Color::Black);
+    title.setOutlineThickness(7);
+    title.setPosition((screenWidth - title.getLocalBounds().width) / 2.f, 20.f);
     this->items.push_back(title);
 
     sf::Text text;
-    text.setFont(font);
+    text.setFont(this->font);
     text.setString("Exit");
-    text.setCharacterSize(100);
+    text.setCharacterSize(150);
 
-    sf::FloatRect textBounds = text.getLocalBounds();
-    float textWidth = textBounds.width;
-    float textHeight = textBounds.height;
+    const sf::FloatRect textBounds = text.getLocalBounds();
+    const float textWidth = textBounds.width;
+    const float textHeight = textBounds.height;
 
-    text.setPosition((screenWidth - textWidth) / 2.0f, startY);
-    text.setOrigin(textBounds.left, textBounds.top + textHeight / 2);
+    text.setPosition((screenWidth - textWidth) / 2.f, startY);
+    text.setOrigin(textBounds.left, textBounds.top + textHeight / 2.f);
     text.setFillColor(sf::Color::White);
+    text.setOutlineColor(sf::Color::Black);
+    text.setOutlineThickness(5);
     this->items.push_back(text);
+
+    this->selectedItemIndex = 1;
 }
 
 EndGame::~EndGame() {}
 
-void EndGame::render() {
-    window->clear();
-    window->draw(backgroundSprite);
-    for (const auto& item : items) {
-        window->draw(item);
-    }
-    window->display();
-}
+//-----------------------------------
+//          Public methods
+//-----------------------------------
 
-void EndGame::handleInput(bool &isRunning) {
+void EndGame::handleInput(bool& isRunning) {
     sf::Event event;
-    while (window->pollEvent(event)) {
+    while (this->window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            window->close();
-        } else if (event.type == sf::Event::MouseMoved) {
+            this->window->close();
+        }
+        else if (event.type == sf::Event::MouseMoved) {
             sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
 
-            if (items[1].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                items[selectedItemIndex].setFillColor(sf::Color::White);
-                selectedItemIndex = 1;
-                items[selectedItemIndex].setFillColor(sf::Color::Green);
+            if (this->items[1].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                this->items[this->selectedItemIndex].setFillColor(sf::Color::White);
+                this->selectedItemIndex = 1;
+                this->items[this->selectedItemIndex].setFillColor(sf::Color::Red);
                 break;
             }
             else {
-                items[selectedItemIndex].setFillColor(sf::Color::White);
+                this->items[this->selectedItemIndex].setFillColor(sf::Color::White);
             }
-        } else if (event.type == sf::Event::MouseButtonPressed) {
+        }
+        else if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
-                if (items[selectedItemIndex].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                    if (selectedItemIndex == 1) {
-                        bool isRunning = false;
+                sf::Vector2i mousePos = sf::Mouse::getPosition(*this->window);
+                if (this->items[this->selectedItemIndex].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                    if (this->selectedItemIndex == 1) {
                         this->window->close();
                         return;
                     }
@@ -84,4 +92,13 @@ void EndGame::handleInput(bool &isRunning) {
             }
         }
     }
+}
+
+void EndGame::render() {
+    this->window->clear();
+    this->window->draw(this->backgroundSprite);
+    for (const auto& item : this->items) {
+        this->window->draw(item);
+    }
+    this->window->display();
 }

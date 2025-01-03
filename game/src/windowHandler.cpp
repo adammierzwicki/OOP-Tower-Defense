@@ -4,13 +4,11 @@
 //     Constructor and destructor
 //-----------------------------------
 
-WindowHandler::WindowHandler()
-{
+WindowHandler::WindowHandler() {
     this->initWindow();
 }
 
-WindowHandler::~WindowHandler()
-{
+WindowHandler::~WindowHandler() {
     delete this->window;
 }
 
@@ -18,28 +16,23 @@ WindowHandler::~WindowHandler()
 //          Private methods
 //-----------------------------------
 
-void WindowHandler::initWindow()
-{
+void WindowHandler::initWindow() {
     this->videoMode = sf::VideoMode(1920, 1080);
     this->window = new sf::RenderWindow(this->videoMode, "Tower Defense", sf::Style::Close | sf::Style::Titlebar);
     this->window->setPosition(sf::Vector2i(0, 0));
     this->window->setFramerateLimit(60);
 }
 
-void WindowHandler::pollEvents()
-{
+void WindowHandler::pollEvents() {
     this->events.clear();
-    while (this->window->pollEvent(this->windowEvent))
-    {
+    while (this->window->pollEvent(this->windowEvent)) {
         events.push_back(this->windowEvent);
-        switch (this->windowEvent.type)
-        {
+        switch (this->windowEvent.type) {
         case sf::Event::Closed:
             this->window->close();
             break;
         case sf::Event::KeyPressed:
-            if (this->windowEvent.key.code == sf::Keyboard::Q && this->windowEvent.key.control)
-            {
+            if (this->windowEvent.key.code == sf::Keyboard::Q && this->windowEvent.key.control) {
                 this->window->close();
             }
             break;
@@ -53,31 +46,25 @@ void WindowHandler::pollEvents()
 //             Accessors
 //-----------------------------------
 
-sf::RenderWindow *WindowHandler::getWindow() const { return this->window; }
+sf::RenderWindow* WindowHandler::getWindow() const { return this->window; }
 
-const std::vector<sf::Event> &WindowHandler::getEvents() const { return this->events; }
+const std::vector<sf::Event>& WindowHandler::getEvents() const { return this->events; }
 
 //-----------------------------------
 //          Public methods
 //-----------------------------------
 
-bool WindowHandler::mouseLeftClicked()
-{
-    if (this->windowEvent.type == this->windowEvent.MouseButtonReleased && this->windowEvent.mouseButton.button == sf::Mouse::Left)
-    {
+bool WindowHandler::mouseLeftClicked() {
+    if (this->windowEvent.type == this->windowEvent.MouseButtonReleased && this->windowEvent.mouseButton.button == sf::Mouse::Left) {
         return true;
     }
     return false;
 }
 
-void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject *> screenContent, UI *ui)
-{
-
+void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject*> screenContent, UI* ui) {
     this->window->clear();
-
     this->window->draw(background);
-    for (const sf::Drawable *object : screenContent)
-    {
+    for (const DrawableObject* object : screenContent) {
         this->window->draw(*object);
     }
     ui->render();
@@ -87,4 +74,3 @@ void WindowHandler::render(sf::Sprite background, std::vector<DrawableObject *> 
 bool WindowHandler::running() const { return this->window->isOpen(); }
 
 void WindowHandler::update() { this->pollEvents(); }
-

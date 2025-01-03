@@ -1,5 +1,7 @@
 #pragma once
+
 #include <SFML/Graphics.hpp>
+
 #include "drawableObject.h"
 
 /**
@@ -7,8 +9,7 @@
  *
  * Contains methods for drawing select box on screen and setting its color and position
  */
-class SelectBox : public DrawableObject
-{
+class SelectBox : public DrawableObject {
 private:
     //-----------------------------------
     //             Attributes
@@ -31,7 +32,7 @@ private:
      *
      * Implemented from sf::Drawable interface
      */
-    void draw(sf::RenderTarget &target, sf::RenderStates states = sf::RenderStates::Default) const;
+    void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;
 
 public:
     //-----------------------------------
@@ -46,9 +47,7 @@ public:
     SelectBox();
 
     /**
-     * @brief Destroy the Select Box object
-     *
-     * Default destructor for SelectBox object
+     * @brief Default destructor
      */
     ~SelectBox();
 

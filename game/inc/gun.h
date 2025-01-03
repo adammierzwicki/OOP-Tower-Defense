@@ -1,14 +1,16 @@
 #pragma once
+
 #include <iostream>
 #include <string>
+
+#include "../inc/logger.h"
 
 /**
  * @brief Abstract class for all guns
  *
  * Contains basic attributes and methods for all guns
  */
-class Gun
-{
+class Gun {
 protected:
     //-----------------------------------
     //             Attributes
@@ -18,15 +20,34 @@ protected:
     int damage;
     float shooting_speed;
 
+    Logger* logger;
+
 public:
     //-----------------------------------
     //     Constructor and destructor
     //-----------------------------------
 
+    /**
+     * @brief Construct a new Gun object
+     * @param gun_name Gun type name
+     * @param damage Gun damage
+     * @param shooting_speed Gun shooting speed
+     *
+     * Construct a new Gun object with given attributes
+     */
     Gun(std::string gun_name, int damage, float shooting_speed);
 
-    Gun(Gun const &gun);
+    /**
+     * @brief Copy Gun object
+     * @param gun Gun object
+     *
+     * Cerate copy of Gun object from another Gun object
+     */
+    Gun(Gun const& gun);
 
+    /**
+     * @brief Default destructor
+     */
     virtual ~Gun();
 
     //-----------------------------------
@@ -34,28 +55,28 @@ public:
     //-----------------------------------
 
     /**
-     * @brief Get gun type
-     * @return Gun type name
-     *
-     * Get gun type name
-     */
-    std::string getType();
-
-    /**
      * @brief Get gun damage
      * @return Gun damage
-     *
-     * Get gun damage
      */
-    int getDamage();
+    int getDamage() const;
 
     /**
      * @brief Get gun delay
      * @return Gun delay
-     *
-     * Get gun delay
      */
-    float getDelay();
+    float getDelay() const;
+
+    /**
+     * @brief Get gun full name
+     * @return Gun name
+     */
+    std::string getName() const;
+
+    /**
+     * @brief Get gun type (first letter of name)
+     * @return Gun type
+     */
+    char getType() const;
 
     //-----------------------------------
     //          Public methods
@@ -74,8 +95,7 @@ public:
  *
  * Contains attributes and methods for machine gun
  */
-class MachineGun : public Gun
-{
+class MachineGun : public Gun {
 public:
     MachineGun();
 
@@ -87,8 +107,7 @@ public:
  *
  * Contains attributes and methods for high damage gun
  */
-class HighDamageGun : public Gun
-{
+class HighDamageGun : public Gun {
 public:
     HighDamageGun();
 
@@ -100,8 +119,7 @@ public:
  *
  * Contains attributes and methods for sniper rifle
  */
-class SniperRifle : public Gun
-{
+class SniperRifle : public Gun {
 public:
     SniperRifle();
 

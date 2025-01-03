@@ -1,10 +1,14 @@
 #pragma once
+
 #include <cmath>
 #include <iostream>
 #include <utility>
+
 #include <SFML/Graphics.hpp>
-#include "animation.h"
-#include "drawableObject.h"
+
+#include "../inc/animation.h"
+#include "../inc/drawableObject.h"
+#include "../inc/logger.h"
 
 /**
  * @brief Base class for all enemies
@@ -12,21 +16,30 @@
  *
  * Contains basic attributes and methods for all enemies
  */
-class Enemy : public DrawableObject
-{
+class Enemy : public DrawableObject {
 private:
     //-----------------------------------
     //             Attributes
     //-----------------------------------
 
+    std::string enemyType;
     int hp;
     float speed;
-    std::string enemy_type;
-    int current_path_point = 0;
+    int value;
+    int damage;
+    int currentPathPoint;
 
     //-----------------------------------
     //          Private methods
     //-----------------------------------
+
+    /**
+     * @brief Animate enemy sprite
+     * @param deltaTime Time passed since last frame
+     *
+     * Update enemy sprite uvRect and change animation frame
+     */
+    void animate(float deltaTime);
 
     /**
      * @brief Draw enemy on screen
@@ -38,16 +51,7 @@ private:
      *
      * Implemented from sf::Drawable interface
      */
-    virtual void draw(sf::RenderTarget &target, sf::RenderStates states = sf::RenderStates::Default) const;
-
-    /**
-     * @brief Animate enemy sprite
-     * @param row Row corresponding to current enemy direction
-     * @param deltaTime Time passed since last frame
-     *
-     * Update enemy sprite uvRect and change animation frame
-     */
-    void animate(int row, float deltaTime);
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;
 
     /**
      * @brief Initialize enemy sprite
@@ -56,16 +60,24 @@ private:
      */
     virtual void initSprite() = 0;
 
+    /**
+     * @brief Initialize enemy variables
+     *
+     * Set default values for enemy attributes
+     */
+    void initVariables();
+
 protected:
     //-----------------------------------
     //             Attributes
     //-----------------------------------
 
-    sf::Texture texture;
     sf::Sprite sprite;
-    Animation *animation;
-    int animation_row;
-    int value;
+    sf::Texture texture;
+    Animation* animation;
+    int animationRow;
+
+    Logger* logger;
 
 public:
     //-----------------------------------
@@ -74,24 +86,28 @@ public:
 
     /**
      * @brief Construct a new Enemy object at position (0, 0)
-     * @param enemy_type Type of enemy
+     * @param enemyType Type of enemy
      * @param hp Enemy hp
      * @param speed Enemy movement speed
+     * @param value Enemy value
+     * @param damage Damage dealt by enemy
      *
      * Construct a new Enemy object with given type, hp and speed at position (0, 0)
      */
-    Enemy(std::string enemy_type, int hp, float speed);
+    Enemy(std::string enemyType, int hp, float speed, int value, int damage);
 
     /**
      * @brief Construct a new Enemy object at given position
-     * @param enemy_type Type of enemy
+     * @param enemyType Type of enemy
      * @param hp Enemy hp
      * @param speed Enemy movement speed
+     * @param value Enemy value
+     * @param damage Damage dealt by enemy
      * @param position Enemy start position
      *
      * Construct a new Enemy object with given type, hp, speed and start position
      */
-    Enemy(std::string enemy_type, int hp, float speed, sf::Vector2f position);
+    Enemy(std::string enemyType, int hp, float speed, int value, int damage, sf::Vector2f position);
 
     /**
      * @brief Destroy the Enemy object
@@ -103,6 +119,12 @@ public:
     //-----------------------------------
     //             Accessors
     //-----------------------------------
+
+    /**
+     * @brief Get damage dealt by enemy
+     * @return Damage dealt
+     */
+    int getDamage() const;
 
     /**
      * @brief Get enemy hp
@@ -128,6 +150,10 @@ public:
      */
     std::string getType() const;
 
+    /**
+     * @brief Get enemy value
+     * @return Enemy value
+     */
     int getValue() const;
 
     //-----------------------------------
@@ -137,8 +163,6 @@ public:
     /**
      * @brief Set enemy start position
      * @param position Start position
-     *
-     * Set enemy start position to position given in sf::Vector2f format
      */
     void setStartPosition(sf::Vector2f position);
 
@@ -147,18 +171,21 @@ public:
     //-----------------------------------
 
     /**
-     * @brief Check if enemy is dead
-     * @return True if enemy is dead, false otherwise
+     * @brief Update enemy position and animation
+     * @param path Path for enemy to follow
+     * @param deltaTime Time passed since last frame
+     *
+     * Update enemy position and animation based on path and time passed
      */
-    bool isDead();
+    void update(std::vector<sf::Vector2f>& path, float deltaTime);
 
     /**
      * @brief Move enemy along path
+     * @param path Path for enemy to follow
      *
      * Moves enemy in the direction of the path
      */
-    // sf::Vector2f moveAlong(std::vector<sf::Vector2f> &path);
-    void moveAlong(std::vector<sf::Vector2f> &path);
+    void moveAlong(std::vector<sf::Vector2f>& path);
 
     /**
      * @brief Deal damage to enemy
@@ -169,27 +196,23 @@ public:
     void takeDamage(int damage);
 
     /**
-     * @brief Update enemy position and animation
-     * @param path Path for enemy to follow
-     * @param deltaTime Time passed since last frame
-     *
-     * Update enemy position and animation based on path and time passed
+     * @brief Check if enemy is dead
+     * @return True if enemy is dead, false otherwise
      */
-    void update(std::vector<sf::Vector2f> &path, float deltaTime);
+    bool isDead();
 };
 
 //-----------------------------------
 //              Peasant
 //-----------------------------------
 
-class Peasant : public Enemy
-{
+class Peasant : public Enemy {
 private:
     void initSprite() override;
 
 public:
     Peasant();
-    Peasant(bool noTexture);
+    Peasant(bool loadTexture = false);
     ~Peasant();
 };
 
@@ -197,8 +220,7 @@ public:
 //              Warrior
 //-----------------------------------
 
-class Warrior : public Enemy
-{
+class Warrior : public Enemy {
 private:
     void initSprite() override;
 
@@ -211,8 +233,7 @@ public:
 //            HeavyKnight
 //-----------------------------------
 
-class HeavyKnight : public Enemy
-{
+class HeavyKnight : public Enemy {
 private:
     void initSprite() override;
 

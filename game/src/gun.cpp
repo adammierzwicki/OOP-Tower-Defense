@@ -4,11 +4,13 @@
 //     Constructor and destructor
 //-----------------------------------
 
-Gun::Gun(std::string gun_name, int damage, float shooting_speed)
-    : gun_name(gun_name), damage(damage), shooting_speed(shooting_speed) {}
+Gun::Gun(std::string gun_name, int damage, float shooting_speed) : gun_name(gun_name), damage(damage), shooting_speed(shooting_speed) {
+    this->logger = Logger::getInstance();
+}
 
-Gun::Gun(Gun const &gun)
-    : gun_name(gun.gun_name), damage(gun.damage), shooting_speed(gun.shooting_speed) {}
+Gun::Gun(Gun const& gun) : gun_name(gun.gun_name), damage(gun.damage), shooting_speed(gun.shooting_speed) {
+    this->logger = Logger::getInstance();
+}
 
 Gun::~Gun() {}
 
@@ -17,22 +19,21 @@ Gun::~Gun() {}
 //             Accessors
 //-----------------------------------
 
-std::string Gun::getType()
-{
-    return gun_name;
-}
+int Gun::getDamage() const { return damage; }
 
-int Gun::getDamage() { return damage; }
+float Gun::getDelay() const { return shooting_speed; }
 
-float Gun::getDelay() { return shooting_speed; }
+std::string Gun::getName() const { return gun_name; }
+
+char Gun::getType() const { return gun_name[0]; }
 
 //-----------------------------------
 //          Public methods
 //-----------------------------------
 
-void Gun::fire()
-{
-    std::cout << "Shooting from " << gun_name << " with damage " << damage << " and speed " << shooting_speed << std::endl;
+void Gun::fire() {
+    //! add projectile animation
+    this->logger->log(LogLevel::DEBUG, "Shooting from " + gun_name + " with damage " + std::to_string(damage) + " and speed " + std::to_string(shooting_speed), "Gun::fire()", __LINE__);
 }
 
 //-----------------------------------
@@ -41,9 +42,8 @@ void Gun::fire()
 
 MachineGun::MachineGun() : Gun("machine_gun", 20, 0.5) {}
 
-void MachineGun::fire()
-{
-    std::cout << "Shooting from " << gun_name << " with damage " << damage << " and speed " << shooting_speed << std::endl;
+void MachineGun::fire() {
+    this->logger->log(LogLevel::DEBUG, "Shooting from " + gun_name + " with damage " + std::to_string(damage) + " and speed " + std::to_string(shooting_speed), "MachineGun::fire()", __LINE__);
 }
 
 //-----------------------------------
@@ -52,9 +52,8 @@ void MachineGun::fire()
 
 HighDamageGun::HighDamageGun() : Gun("high_damage_gun", 100, 1.0) {}
 
-void HighDamageGun::fire()
-{
-    std::cout << "Shooting from " << gun_name << " with damage " << damage << " and speed " << shooting_speed << std::endl;
+void HighDamageGun::fire() {
+    this->logger->log(LogLevel::DEBUG, "Shooting from " + gun_name + " with damage " + std::to_string(damage) + " and speed " + std::to_string(shooting_speed), "HighDamageGun::fire()", __LINE__);
 }
 
 //-----------------------------------
@@ -63,7 +62,6 @@ void HighDamageGun::fire()
 
 SniperRifle::SniperRifle() : Gun("sniper_rifle", 200, 5.0) {}
 
-void SniperRifle::fire()
-{
-    std::cout << "Shooting from " << gun_name << " with damage " << damage << " and speed " << shooting_speed << std::endl;
+void SniperRifle::fire() {
+    this->logger->log(LogLevel::DEBUG, "Shooting from " + gun_name + " with damage " + std::to_string(damage) + " and speed " + std::to_string(shooting_speed), "SniperRifle::fire()", __LINE__);
 }

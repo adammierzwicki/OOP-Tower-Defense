@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SFML/Graphics.hpp>
 
 /**
@@ -6,8 +7,7 @@
  *
  * Class updating uvRect of enemy sprite to animate it
  */
-class Animation
-{
+class Animation {
 private:
     //-----------------------------------
     //             Attributes
@@ -15,8 +15,8 @@ private:
 
     sf::Vector2u imageCount;
     sf::Vector2u currentImage;
-    float totalTime;
     float switchTime;
+    float totalTime;
     sf::IntRect uvRect;
 
 public:
@@ -32,7 +32,7 @@ public:
      *
      * Initializes all class variables
      */
-    Animation(sf::Texture *texture, sf::Vector2u imageCount, float switchTime);
+    Animation(sf::Texture* texture, sf::Vector2u imageCount, float switchTime);
 
     /**
      * @brief Default destructor
@@ -47,7 +47,7 @@ public:
      * @brief Get uvRect of enemy sprite
      * @return uvRect of enemy sprite
      */
-    sf::IntRect getUVrect();
+    sf::IntRect getUVrect() const;
 
     //-----------------------------------
     //          Public methods

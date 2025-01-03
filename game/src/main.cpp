@@ -5,7 +5,7 @@ int main() {
     srand(static_cast<unsigned>(time(0)));
 
     Logger* logger = Logger::getInstance();
-    logger->setMode(Mode::VERBOSE);
+    logger->setMode(Mode::QUIET);
     logger->log(INFO, "Application started");
 
     Game game;

@@ -11,7 +11,7 @@ protected:
     void SetUp() override
     {
         tower = new Tower();
-        enemy = new Peasant(true);
+        enemy = new Peasant(false);
     }
 
     void TearDown() override

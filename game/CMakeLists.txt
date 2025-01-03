@@ -11,6 +11,7 @@ set(HEADERS
     inc/game.h
     inc/gun.h
     inc/levelInfo.h
+    inc/logger.h
     inc/menu.h
     inc/prices.h
     inc/selectBox.h
@@ -27,8 +28,8 @@ set(SOURCES
     src/game.cpp
     src/gun.cpp
     src/levelInfo.cpp
+    src/logger.cpp
     src/menu.cpp
-    src/prices.cpp
     src/selectBox.cpp
     src/tower.cpp
     src/ui.cpp

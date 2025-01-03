@@ -2,7 +2,7 @@
 Basic tower defense style game made using SFML library.
 
 ### Warning
-<span style="color:red">Code is not working with SFML 3.0.0!</span> \
+$\textsf{\color{red}Code is not working with SFML 3.0.0!}$ \
 For best experience use SFML 2.6.2 (native version) but in general versions 2.5.X / 2.6.X should also work fine.
 
 ## Running code

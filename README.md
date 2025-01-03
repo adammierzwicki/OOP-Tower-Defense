@@ -30,7 +30,7 @@ For best experience use SFML 2.6.2 (native version) but in general versions 2.5.
    cd ./game/obj
    g++ -c ./../src/*.cpp -Wall
    cd ./../..
-   g++ ./game/obj/*.o -o tower-defense.exe -lsfml-graphics -lsfml-window -lsfml-system -lsfml-main
+   g++ ./game/obj/*.o -o tower_defense.exe -lsfml-graphics -lsfml-window -lsfml-system
    ```
 3. Run `./tower_defense.exe`
 

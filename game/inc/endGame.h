@@ -21,7 +21,7 @@ private:
     sf::Font font;
     std::string message;
     std::vector<sf::Text> items;
-    int selectedItemIndex;
+    unsigned int selectedItemIndex;
 
     Logger* logger;
 

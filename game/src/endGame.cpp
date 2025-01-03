@@ -85,7 +85,7 @@ void EndGame::handleInput(bool& isRunning) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(*this->window);
                 if (this->items[this->selectedItemIndex].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                     if (this->selectedItemIndex == 1) {
-                        this->window->close();
+                        isRunning = false;
                         return;
                     }
                 }

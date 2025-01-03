@@ -92,7 +92,7 @@ void Enemy::update(std::vector<sf::Vector2f>& path, float deltaTime) {
 }
 
 void Enemy::moveAlong(std::vector<sf::Vector2f>& path) {
-    if (this->currentPathPoint >= static_cast<int>(path.size())) {
+    if (this->currentPathPoint >= static_cast<unsigned int>(path.size())) {
         return;
     }
 

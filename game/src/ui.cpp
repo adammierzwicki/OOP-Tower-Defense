@@ -179,6 +179,8 @@ ButtonType UI::handleInput() {
                         case 4:
                             this->logger->log(LogLevel::INFO, "Upgrade selected");
                             return ButtonType::UPGRADE;
+                        default:
+                            return ButtonType::NONE;
                         }
                     }
                 }

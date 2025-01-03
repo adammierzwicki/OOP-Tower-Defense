@@ -16,7 +16,7 @@ private:
 
     sf::Font font;
     sf::Text title;
-    int selectedItemIndex;
+    unsigned int selectedItemIndex;
     std::vector<sf::Text> menuItems;
 
     sf::Texture backgroundTexture;
@@ -50,7 +50,7 @@ public:
      * @brief Get index of selected menu item
      * @return Index of selected menu item
      */
-    int getSelectedItemIndex() const;
+    unsigned int getSelectedItemIndex() const;
 
     //-----------------------------------
     //          Public methods
@@ -62,7 +62,7 @@ public:
      *
      * Start menu loop
      */
-    int startMenu();
+    unsigned int startMenu();
 
     /**
      * @brief Handle user input

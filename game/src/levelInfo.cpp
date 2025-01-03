@@ -81,14 +81,14 @@ void LevelInfo::loadMap() {
     std::string line;
     std::getline(this->mapFile, line);
 
-    int width = std::stoi(line.substr(0, line.find(',')));
-    int height = std::stoi(line.substr(line.find(',') + 1));
+    unsigned int width = std::stoul(line.substr(0, line.find(',')));
+    unsigned int height = std::stoul(line.substr(line.find(',') + 1));
     this->mapSize = std::make_pair(width, height);
 
-    for (int i = 0; i < height; i++) {
+    for (unsigned int i = 0; i < height; i++) {
         std::getline(this->mapFile, line);
         std::vector<bool> row;
-        for (int j = 0; j < width; j++) {
+        for (size_t j = 0; j < width; j++) {
             if (line[j] == 'O') {
                 row.push_back(false);
             }
@@ -153,15 +153,15 @@ int LevelInfo::getRoundsCount() const { return this->roundsCount; }
 //          Public methods
 //-----------------------------------
 
-bool LevelInfo::isTileBlocked(std::pair<int, int> tile) const {
+bool LevelInfo::isTileBlocked(std::pair<unsigned int, unsigned int> tile) const {
     return this->map[tile.second][tile.first];
 }
 
-void LevelInfo::blockTile(std::pair<int, int> tile) {
+void LevelInfo::blockTile(std::pair<unsigned int, unsigned int> tile) {
     this->map[tile.second][tile.first] = true;
 }
 
-void LevelInfo::unblockTile(std::pair<int, int> tile) {
+void LevelInfo::unblockTile(std::pair<unsigned int, unsigned int> tile) {
     this->map[tile.second][tile.first] = false;
 }
 

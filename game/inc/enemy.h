@@ -27,7 +27,7 @@ private:
     float speed;
     int value;
     int damage;
-    int currentPathPoint;
+    unsigned int currentPathPoint;
 
     //-----------------------------------
     //          Private methods
@@ -75,7 +75,7 @@ protected:
     sf::Sprite sprite;
     sf::Texture texture;
     Animation* animation;
-    int animationRow;
+    unsigned int animationRow;
 
     Logger* logger;
 

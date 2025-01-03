@@ -205,6 +205,9 @@ void Game::placeTower() {
             gun = new SniperRifle();
             this->money -= Prices::sniperTower;
             break;
+        default:
+            this->logger->log(LogLevel::CRITICAL, "Gun type not recognized", "Game::placeTower()", __LINE__);
+            throw std::runtime_error("Gun type not recognized");
         }
         sf::Vector2f pos = this->getCursorProjection();
         Tower* tower = new Tower(pos, 1, 100, gun);
@@ -233,10 +236,13 @@ void Game::sellTower() {
                 case 's':
                     this->money += Prices::sniperTower / 2;
                     break;
+                default:
+                    this->logger->log(LogLevel::CRITICAL, "Gun type not recognized", "Game::sellTower()", __LINE__);
+                    throw std::runtime_error("Gun type not recognized");
                 }
 
                 delete this->towers[i];
-                this->towers.erase(this->towers.begin() + i);
+                this->towers.erase(this->towers.begin() + static_cast<int>(i));
 
                 this->logger->log(LogLevel::DEBUG, "Tower removed from (" + std::to_string(this->currentTile.first) + ", " + std::to_string(this->currentTile.second) + ")", "Game::sellTower()", __LINE__);
                 break;
@@ -267,13 +273,13 @@ void Game::updateEnemies() {
             this->logger->log(LogLevel::INFO, "Player lost " + std::to_string(enemies[i]->getDamage()) + " hp", "Game::updateEnemies()", __LINE__);
 
             delete this->enemies[i];
-            this->enemies.erase(this->enemies.begin() + i);
+            this->enemies.erase(this->enemies.begin() + static_cast<int>(i));
         }
         else if (this->enemies[i]->isDead()) {
             money += this->enemies[i]->getValue();
 
             delete this->enemies[i];
-            this->enemies.erase(this->enemies.begin() + i);
+            this->enemies.erase(this->enemies.begin() + static_cast<int>(i));
         }
     }
 }
@@ -301,8 +307,7 @@ void Game::addEnemy(char enemyType) {
     case 'H':
         enemy = new HeavyKnight();
         break;
-    }
-    if (enemy == nullptr) {
+    default:
         this->logger->log(LogLevel::CRITICAL, "Enemy type not recognized", "Game::addEnemy()", __LINE__);
         throw std::runtime_error("Enemy type not recognized");
     }
@@ -454,6 +459,9 @@ void Game::loadSave() {
         case 's':
             gun = new SniperRifle();
             break;
+        default:
+            this->logger->log(LogLevel::CRITICAL, "Gun type not recognized", "Game::loadSave()", __LINE__);
+            throw std::runtime_error("Gun type not recognized");
         }
         Tower* tower = new Tower(sf::Vector2f(x, y), level, range, gun);
         this->towers.push_back(tower);
@@ -500,7 +508,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
 
 void Game::startingScreen() {
     Menu menu(this->window->getWindow());
-    int choice = menu.startMenu();
+    unsigned int choice = menu.startMenu();
 
     if (choice == 0) {
         return;

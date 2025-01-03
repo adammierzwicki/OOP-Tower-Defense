@@ -177,7 +177,7 @@ public:
      * @param tile Pair of tile coordinates
      * @return True if tile is blocked, false otherwise
      */
-    bool isTileBlocked(std::pair<int, int> tile) const;
+    bool isTileBlocked(std::pair<unsigned int, unsigned int> tile) const;
 
     /**
      * @brief Mark tile as blocked
@@ -185,14 +185,14 @@ public:
      *
      * Mark tile as blocked in map
      */
-    void blockTile(std::pair<int, int> tile);
+    void blockTile(std::pair<unsigned int, unsigned int> tile);
     /**
      * @brief Remove tower from map
      * @param tile Pair of tile coordinates
      *
      * Mark tile as unblocked in map
      */
-    void unblockTile(std::pair<int, int> tile);
+    void unblockTile(std::pair<unsigned int, unsigned int> tile);
 
     /**
      * @brief Check if there are enemies left in round

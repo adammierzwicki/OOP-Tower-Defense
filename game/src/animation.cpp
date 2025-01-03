@@ -29,7 +29,7 @@ sf::IntRect Animation::getUVrect() const { return this->uvRect; }
 //          Public methods
 //-----------------------------------
 
-void Animation::update(int row, float deltaTime) {
+void Animation::update(unsigned int row, float deltaTime) {
     this->currentImage.y = row;
     this->totalTime += deltaTime;
 
@@ -41,6 +41,6 @@ void Animation::update(int row, float deltaTime) {
             currentImage.x = 0;
         }
     }
-    this->uvRect.left = currentImage.x * uvRect.width;
-    this->uvRect.top = currentImage.y * uvRect.height;
+    this->uvRect.left = static_cast<int>(currentImage.x) * uvRect.width;
+    this->uvRect.top = static_cast<int>(currentImage.y) * uvRect.height;
 }

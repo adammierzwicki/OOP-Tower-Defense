@@ -60,5 +60,5 @@ public:
      *
      * Updates uvRect coordinates based on enemy direction and time passed
      */
-    void update(int row, float deltaTime);
+    void update(unsigned int row, float deltaTime);
 };

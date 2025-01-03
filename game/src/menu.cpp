@@ -67,13 +67,13 @@ Menu::~Menu() {}
 //             Accessors
 //-----------------------------------
 
-int Menu::getSelectedItemIndex() const { return this->selectedItemIndex; }
+unsigned int Menu::getSelectedItemIndex() const { return this->selectedItemIndex; }
 
 //-----------------------------------
 //          Public methods
 //-----------------------------------
 
-int Menu::startMenu() {
+unsigned int Menu::startMenu() {
     bool isRunning = true;
 
     while (isRunning && this->window->isOpen()) {

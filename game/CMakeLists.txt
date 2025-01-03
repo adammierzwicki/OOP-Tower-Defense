@@ -36,7 +36,7 @@ set(SOURCES
     src/windowHandler.cpp
    )
 
-add_executable(towerDefense src/main.cpp ${HEADERS} ${SOURCES})
+add_executable(tower_defense src/main.cpp ${HEADERS} ${SOURCES})
 target_include_directories(tower_defense PRIVATE inc)
 add_library(game_lib STATIC ${HEADERS} ${SOURCES})
-target_link_libraries(towerDefense PUBLIC game_lib sfml-graphics sfml-window sfml-system)
+target_link_libraries(tower_defense PUBLIC game_lib sfml-graphics sfml-window sfml-system)

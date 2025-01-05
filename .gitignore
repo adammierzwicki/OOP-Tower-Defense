@@ -9,4 +9,5 @@ venv/
 *.o
 *.dll
 build/
-external/sfml*
+logfile.txt
+autosave.txt

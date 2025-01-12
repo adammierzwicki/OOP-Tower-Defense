@@ -570,7 +570,6 @@ void Game::startGame() {
     if (infile.good())
     {
         this->logger->log(LogLevel::INFO, "Loading game from save...");
-        std::cout << "loading" << std::endl;
         this->loadSave();
 
         this->logger->log(LogLevel::INFO, "Loaded game");
@@ -580,8 +579,7 @@ void Game::startGame() {
         this->logger->log(LogLevel::INFO, "No save found. Starting new game...");
         this->loadLevel(1);
     }
-    // this->loadLevel(1);
-    // this->initWorld();
+    infile.close();
 
     this->gameLoop();
 
@@ -589,5 +587,12 @@ void Game::startGame() {
 
     if (!endGame) {
         this->autosave();
+    }
+    else {
+        if (std::remove("autosave.txt") != 0) {
+            this->logger->log(LogLevel::ERROR, "Cannot delete autosave file");
+        } else {
+            this->logger->log(LogLevel::DEBUG, "Autosave file deleted");
+        }
     }
 }

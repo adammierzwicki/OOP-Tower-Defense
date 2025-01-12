@@ -75,6 +75,7 @@ void Game::loadLevel(int level) {
     this->levelInfo = new LevelInfo(this->level);
     this->enemyPath = this->levelInfo->getPath();
     this->backgroundTexture = this->levelInfo->getBackgroundTexture();
+    this->background.setTexture(this->backgroundTexture, true);
 }
 
 sf::Vector2f Game::getCursorProjection() {
@@ -270,7 +271,7 @@ void Game::updateEnemies() {
         sf::Vector2f diff = this->levelInfo->getLastPathPoint() - this->enemies[i]->getPosition();
         if (diff.x < 1.f && diff.y < 1.f) {
             this->playerHp -= enemies[i]->getDamage();
-            this->logger->log(LogLevel::INFO, "Player lost " + std::to_string(enemies[i]->getDamage()) + " hp", "Game::updateEnemies()", __LINE__);
+            this->logger->log(LogLevel::DEBUG, "Player lost " + std::to_string(enemies[i]->getDamage()) + " hp", "Game::updateEnemies()", __LINE__);
 
             delete this->enemies[i];
             this->enemies.erase(this->enemies.begin() + static_cast<int>(i));
@@ -423,31 +424,52 @@ void Game::autosave() {
     this->logger->log(LogLevel::INFO, "Game saved");
 }
 
-//! get rid of initialPos, load from beginning of round
 void Game::loadSave() {
-    std::ifstream file("autosave.txt");
+    this->logger->log(LogLevel::DEBUG, "Started loading", "Game::loadSave()", __LINE__);
     std::string line;
-    std::getline(file, line); // skip title
-    std::getline(file, line); // skip blank
-    std::getline(file, line);
-    this->level = std::stoi(line.substr(7));
-    std::getline(file, line);
-    this->round = std::stoi(line.substr(7));
-    std::getline(file, line);
-    this->playerHp = std::stoi(line.substr(11));
-    std::getline(file, line);
-    this->money = std::stoi(line.substr(7));
-    std::getline(file, line);
-    int towersCount = std::stoi(line.substr(8));
+    int towersCount = 0;
+    std::ifstream file("autosave.txt");
+    try {
+        std::getline(file, line); // skip title
+        std::getline(file, line); // skip blank
+        std::getline(file, line);
+        this->level = std::stoi(line.substr(7));
+        std::getline(file, line);
+        this->round = std::stoi(line.substr(7));
+        std::getline(file, line);
+        this->playerHp = std::stoi(line.substr(11));
+        std::getline(file, line);
+        this->money = std::stoi(line.substr(7));
+        std::getline(file, line);
+        towersCount = std::stoi(line.substr(8));
+    }
+    catch (const std::exception& e) {
+        this->logger->log(LogLevel::CRITICAL, "Cannot load game from save", "Game::loadSave()", __LINE__);
+        throw std::runtime_error("Cannot load game from save");
+    }
+
+    this->loadLevel(this->level);
+
     for (int i = 0; i < towersCount; i++) {
         std::getline(file, line);
+
         std::istringstream iss(line);
-        std::string levelStr, gunStr, rangeStr, xStr, yStr;
-        iss >> levelStr >> gunStr >> rangeStr >> xStr >> yStr;
-        int level = std::stoi(levelStr);
-        int range = std::stoi(rangeStr);
-        int x = std::stoi(xStr);
-        int y = std::stoi(yStr);
+        std::string levelStr, gunStr, rangeStr, xStr, yStr, tileXStr, tileYStr;
+        int level, range, x, y, tileX, tileY;
+        try {
+            iss >> levelStr >> gunStr >> rangeStr >> xStr >> yStr >> tileXStr >> tileYStr;
+            level = std::stoi(levelStr);
+            range = std::stoi(rangeStr);
+            x = std::stoi(xStr);
+            y = std::stoi(yStr);
+            tileX = std::stoi(tileXStr);
+            tileY = std::stoi(tileYStr);
+        }
+        catch (const std::exception& e) {
+            this->logger->log(LogLevel::CRITICAL, "Cannot load tower data from save", "Game::loadSave()", __LINE__);
+            throw std::runtime_error("Cannot load tower data from save");
+        }
+
         Gun* gun = nullptr;
         switch (gunStr[0]) {
         case 'm':
@@ -463,8 +485,26 @@ void Game::loadSave() {
             this->logger->log(LogLevel::CRITICAL, "Gun type not recognized", "Game::loadSave()", __LINE__);
             throw std::runtime_error("Gun type not recognized");
         }
-        Tower* tower = new Tower(sf::Vector2f(x, y), level, range, gun);
+        Tower* tower = nullptr;
+        switch(level) {
+            case 1:
+                tower = new Tower(sf::Vector2f(x, y), level, range, gun);
+                break;
+            case 2:
+                tower = new Tower2(sf::Vector2f(x, y), level, range, gun);
+                break;
+            case 3:
+                tower = new Tower3(sf::Vector2f(x, y), level, range, gun);
+                break;
+            default:
+                this->logger->log(LogLevel::CRITICAL, "Tower level not recognized", "Game::loadSave()", __LINE__);
+                throw std::runtime_error("Tower level not recognized");
+        }
+        // Tower* tower = new Tower(sf::Vector2f(x, y), level, range, gun);
+        tower->placeTower(std::make_pair(tileX, tileY));
         this->towers.push_back(tower);
+        this->levelInfo->blockTile(std::make_pair(tileX, tileY));
+
     }
     file.close();
 }
@@ -501,7 +541,13 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
     os << "Money: " << game.getMoney() << "\n";
     os << "Towers: " << game.getTowers().size() << "\n";
     for (size_t i = 0; i < game.getTowers().size(); i++) {
-        os << game.getTowers()[i]->getLevel() << " " << game.getTowers()[i]->getGun()->getName() << " " << game.getTowers()[i]->getRange() << " " << game.getTowers()[i]->getPosition().x << " " << game.getTowers()[i]->getPosition().y << "\n";
+        os << game.getTowers()[i]->getLevel() << " "
+        << game.getTowers()[i]->getGun()->getName() << " "
+        << game.getTowers()[i]->getRange() << " "
+        << game.getTowers()[i]->getPosition().x << " "
+        << game.getTowers()[i]->getPosition().y << " "
+        << game.getTowers()[i]->getTile().first << " "
+        << game.getTowers()[i]->getTile().second << "\n";
     }
     return os;
 }
@@ -520,21 +566,22 @@ void Game::startGame() {
     if (!this->window->running()) {
         return;
     }
-    // std::ifstream infile("autosave.txt");
-    // if (infile.good())
-    // {
-    //     std::cout << "Loading game from save..." << std::endl;
-    //     this->loadSave();
-    //     this->loadLevel(this->level);
-    //     this->isRoundStarted = true;
-    // }
-    // else
-    // {
-    //     std::cout << "No save found. Starting new game..." << std::endl;
-    //     this->loadLevel(1);
-    // }
-    this->loadLevel(1);
-    this->initWorld();
+    std::ifstream infile("autosave.txt");
+    if (infile.good())
+    {
+        this->logger->log(LogLevel::INFO, "Loading game from save...");
+        std::cout << "loading" << std::endl;
+        this->loadSave();
+
+        this->logger->log(LogLevel::INFO, "Loaded game");
+    }
+    else
+    {
+        this->logger->log(LogLevel::INFO, "No save found. Starting new game...");
+        this->loadLevel(1);
+    }
+    // this->loadLevel(1);
+    // this->initWorld();
 
     this->gameLoop();
 

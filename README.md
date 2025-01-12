@@ -24,7 +24,11 @@ Basic tower defense style game made using SFML library.
    ```
    cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release -B build
    ```
-5. Run `./build/bin/tower-defense`
+5. Build project
+   ```
+   cmake --build build
+   ```
+6. Run `./build/bin/tower-defense`
 
 ## Running unit test
 Unit tests are not currently supported on Windows!
